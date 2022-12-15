@@ -1,0 +1,38 @@
+1 : Attaque : 1    ;  Se déplace de 3 cases dès le premier tour d'apparition.
+Nom :  Harpie
+
+2 : Attaque : 2    ;  Boost le premier allié sur la ligne, sinon juste un 2.
+Nom :  Booster
+
+3 : Attaque : 3    ;  Si un ennemi ou un allié se situe à deux cases, il peut se déplacer de deux pour intéragir.
+Nom :  Bondisseur
+
+4 : Attaque : 4    ;  Dès que posé, il va se situer deux cases devant la première carte rencontrée.
+Nom :  Fonceur
+
+5 : Attaque : 5    ;  Peut effectuer deux actions par tour.
+Nom :  Voyageur du temps
+
+6 : Attaque : 6    ;  Peut se déplacer sur le côté.
+Nom :  Ninja
+
+7 : Attaque : 7    ;  Les dégats subis sont réduits de 2 points.
+Nom :  Tank
+
+8 : Attaque : 8    ;  Peut attaquer avec une portée de deux cases.
+Nom :  Canon
+
+9 : Attaque : 9    ;  Si il tue un ennemi et que la case derrière est libre, il se déplace vers celle-ci.
+Nom :  Samouraï
+
+10 : Attaque : 10  ;  Boost de 1 point un allié proche (contact direct) une fois par tour.
+Nom :  Healer
+
+11 : Attaque : 11  ;  Son attaque est dispersée sur les ennemis devant lui : si il y a un 5 et un 8 sur les deux cases devant lui, il va éliminer le 5 et infliger 6 de dégats au 8. Le total de dégats est égal à 11.
+Nom :  Piétineur
+
+12 : Attaque : Pts ;  Une fois à 12, il ne change plus de capacités. Ses points de vie démarrent à 12 avec une attaque de 12, mais si il descend à 5, son attaque descend à 5 aussi.
+Nom :  Le balaise
+
+13 : Spécial       ;  Une fois apparu, le joueur choisi son numéro.
+Nom :  Caméléon

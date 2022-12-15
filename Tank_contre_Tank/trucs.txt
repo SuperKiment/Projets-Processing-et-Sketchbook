@@ -1,0 +1,20 @@
+Sniper
+batteuse
+explo
+dirigée
+//missile
+incendiaire
+zone de dégats
+balle boost
+
+drift
+flotte
+
+Differents bateaux :
+piti
+moyen
+grand
+usine
+Sous marin a reflechir (zone de trop haut et tout)
+
+Nombre de sous fifres en fonction de la taille du bateau
