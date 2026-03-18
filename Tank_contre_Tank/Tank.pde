@@ -1,233 +1,175 @@
+// ============================================
+// Tank.pde - Classe Tank
+// ============================================
+
 ArrayList<Tank> AllTanks = new ArrayList<Tank>();
 
 class Tank {
-
-  float x = 100, y = 100, dir, dirSpeed = PI/50;
-  float taille = 20, speed, speedMax = 5;
+  int joueurId;
+  TypeTank type;
+  float x, y, dir, speed;
   int hp;
+  Canon canon;
+  PlayerInput input;
+  color couleur;
+  boolean vivant = true;
+  ArrayList<BoostActif> boosts = new ArrayList<BoostActif>();
 
-  boolean forw, back, left, right;
+  Tank(int jId, TypeTank t, float nx, float ny, float nd, PlayerInput pi) {
+    joueurId = jId; type = t;
+    x = nx; y = ny; dir = nd; speed = 0;
+    hp = t.hpMax; input = pi;
+    couleur = #FFFFFF;
+    canon = new Canon(this);
+  }
 
-  Tank(float nx, float ny) {
-    x = nx;
-    y = ny;
+  float SpeedMax() {
+    float s = type.speedMax;
+    for (BoostActif b : boosts) {
+      if (b.categorie.equals("boost_vitesse")) s *= b.multiplicateur;
+      if (b.categorie.equals("ralenti")) s *= b.multiplicateur;
+    }
+    return s;
+  }
+
+  float MultDefense() {
+    float m = 1.0;
+    for (BoostActif b : boosts) {
+      if (b.categorie.equals("boost_defense")) m /= b.multiplicateur;
+    }
+    return m;
+  }
+
+  boolean ABoost(String cat) {
+    for (BoostActif b : boosts) {
+      if (b.categorie.equals(cat)) return true;
+    }
+    return false;
+  }
+
+  float RayonPickup() {
+    return ABoost("boost_aimant") ? 75 : 25;
   }
 
   void Affichage() {
-    push();
+    if (!vivant) return;
 
+    push();
     translate(x, y);
     rotate(dir);
-    fill(255);
+    noStroke();
 
-    rect(0, 0, taille, taille);
+    // Invisibilité
+    float alphaBase = ABoost("boost_invisible") ? 50 : 255;
 
+    // Corps
+    fill(couleur, alphaBase);
+    rect(0, 0, type.taille, type.taille);
+
+    // Contours boost
+    if (ABoost("boost_vitesse")) {
+      stroke(#FF44FF, min(alphaBase, 150));
+      strokeWeight(2); noFill();
+      rect(0, 0, type.taille + 4, type.taille + 4);
+      noStroke();
+    }
+    if (ABoost("boost_degats")) {
+      stroke(#FF2200, min(alphaBase, 150));
+      strokeWeight(2); noFill();
+      rect(0, 0, type.taille + 6, type.taille + 6);
+      noStroke();
+    }
+    if (ABoost("boost_defense")) {
+      stroke(#4488FF, min(alphaBase, 120));
+      strokeWeight(2); noFill();
+      ellipse(0, 0, type.taille + 10, type.taille + 10);
+      noStroke();
+    }
+    if (ABoost("ralenti")) {
+      stroke(#4488FF, min(alphaBase, 100));
+      strokeWeight(1); noFill();
+      ellipse(0, 0, type.taille + 8, type.taille + 8);
+      noStroke();
+      // Petits arcs EMP
+      fill(#4488FF, min(alphaBase, 40));
+      for (int i = 0; i < 3; i++) {
+        float a = (millis() * 0.003) + i * TWO_PI/3;
+        ellipse(cos(a) * type.taille * 0.6, sin(a) * type.taille * 0.6, 4, 4);
+      }
+    }
+
+    // Canon
     canon.Affichage();
-
     pop();
   }
 
   void Deplacement() {
+    if (!vivant) return;
 
-    if (Collision()) {
-      if (AngleCollision() == "x") {
-        dir += 2*((PI/2) - dir);
-      }
-      if (AngleCollision() == "y") {
-        dir = -dir;
-      }
+    float sMax = SpeedMax();
+    boolean bouge = input.avancer || input.reculer || input.gauche || input.droite;
+    speed = bouge ? lerp(speed, sMax, 0.01) : lerp(speed, 0, 0.05);
 
-      speed /= 4;
-    }
+    if (input.gauche) dir -= type.dirSpeed;
+    if (input.droite) dir += type.dirSpeed;
 
-    if (forw || back ||
-      left || right) {
-      speed = lerp(speed, speedMax, 0.01);
-    }
+    float nextX = x, nextY = y;
+    if (input.avancer) { nextX = x + speed * cos(dir); nextY = y + speed * sin(dir); }
+    if (input.reculer) { nextX = x - speed * cos(dir); nextY = y - speed * sin(dir); }
 
-    if (!forw && !back &&
-      !left && !right) {
-      speed = lerp(speed, 0, 0.05);
-    }
-
-    if (forw) {
-      x += speed*cos(dir);
-      y += speed*sin(dir);
-    }
-    if (back) {
-      x -= speed*cos(dir);
-      y -= speed*sin(dir);
-    }
-
-    if (left) {
-      dir -= dirSpeed;
-    }
-    if (right) {
-      dir += dirSpeed;
-    }
-  }
-
-  Mur murCollision;
-
-  boolean Collision() {
     boolean collision = false;
-
-    float x1 = x+speed*cos(dir), 
-      y1 = y+speed*sin(dir);
-    float x2 = x-speed*cos(dir), 
-      y2 = y-speed*sin(dir);
-
-    for (int i = 0; i<AllMurs.size(); i++) {
+    for (int i = 0; i < AllMurs.size(); i++) {
       Mur mur = AllMurs.get(i);
-
-      if (forw && mur.DansMur(x1, y1)) {
+      if (mur.DansMur(nextX, nextY)) {
+        String cote = CoteRect(x, y, mur.x, mur.y, mur.tailleX, mur.tailleY);
+        dir = ReflexionAngle(dir, cote);
+        speed /= 4;
+        EtincellesDir(nextX, nextY, 4, dir + PI, PI/4, 2, couleur);
         collision = true;
-        murCollision = mur;
-      } else if (back && mur.DansMur(x2, y2)) {
-        collision = true;
-        murCollision = mur;
+        break;
       }
     }
+    if (!collision) { x = nextX; y = nextY; }
 
-    return collision;
+    if (input.tir || input.tirMaintenu) canon.Tir();
   }
 
-  String AngleCollision() {
-    String ret = "fail";
-    String rapport = murCollision.PosParRapport(x, y);
+  void MettreAJourBoosts() {
+    for (int i = boosts.size() - 1; i >= 0; i--) {
+      if (boosts.get(i).Expire()) boosts.remove(i);
+    }
+  }
 
-    if (rapport == "haut" ||rapport ==  "bas") ret = "y";      
-    if (rapport == "gauche" ||rapport ==  "droite") ret = "x";      
+  boolean DansTank(float px, float py) {
+    return dist(px, py, x, y) < type.taille / 2;
+  }
 
-    return ret;
+  void PrendreDegas(float degats) {
+    if (!vivant) return;
+    float degatsFinal = degats * MultDefense();
+    hp -= max(1, (int)degatsFinal);
+    BoumParticulesCouleur(x, y, 10, 30, 5, couleur);
+    if (hp <= 0) Mourir();
+  }
+
+  void Mourir() {
+    vivant = false;
+    BoumParticulesCouleur(x, y, 25, 50, 8, couleur);
+    FeuParticules(x, y, 15);
+    FumeeParticules(x, y, 10);
   }
 
   void Fonctions() {
+    if (!vivant) return;
+    input.MettreAJour();
+    MettreAJourBoosts();
     Deplacement();
     Affichage();
-    canon.Fonctions_Munitions();
   }
-
-  //------------------------CANON
-  Canon canon = new Canon();
-
-  class Canon {
-    Canon() {
-    }
-
-    void Affichage() {
-      fill(100);
-      rect(taille/2, 0, taille*2, taille/2);
-    }
-
-    void Fonctions_Munitions() {
-      for (int i = 0; i<AllMunitions.size(); i++) {
-        Munition mun = AllMunitions.get(i);
-
-        mun.Fonction();
-
-        if (mun.Mort()) AllMunitions.remove(i);
-      }
-    }
-
-    void Tir() {
-      AllMunitions.add(new Munition());
-    }
-
-
-    //--------------------------
-    ArrayList<Munition> AllMunitions = new ArrayList<Munition>();
-    class Munition {
-      float ori, xMun, yMun, speedMun = 10;
-      float duree = 1000, timer;
-      Munition() {
-        xMun = x;
-        yMun = y;
-        ori = dir;
-        timer = millis();
-      }
-      Munition(float nx, float ny) {
-        xMun = nx;
-        yMun = ny;
-        ori = dir;
-        timer = millis();
-      }
-
-      void Fonction() {        
-
-        if (CollisionMun()) {
-          if (AngleCollisionMun() == "x") {
-            ori += 2*((PI/2) - ori);
-          }
-          if (AngleCollisionMun() == "y") {
-            ori = -ori;
-          }
-          BoumParticules(xMun, yMun, 5, 20, 5);
-          speedMun /= 1.5;
-        }
-
-        xMun += speedMun*cos(ori);
-        yMun += speedMun*sin(ori);
-
-        push();
-        fill(255);
-        translate(xMun, yMun);
-        ellipse(0, 0, 10, 10);
-        pop();
-      }
-
-      boolean Mort() {
-        if (millis() - timer >= duree) {
-          AllMunitions.add(new Munition(xMun, yMun));
-          return true;
-        } else return false;
-      }
-
-      boolean CollisionMun() {
-        boolean collision = false;
-
-        float x1 = xMun+speedMun*cos(ori), 
-          y1 = yMun+speedMun*sin(ori);
-
-        for (int i = 0; i<AllMurs.size(); i++) {
-          Mur mur = AllMurs.get(i);
-
-          if (mur.DansMur(x1, y1)) {
-            collision = true;
-            murCollisionMun = mur;
-          }
-        }
-
-        return collision;
-      }
-
-      Mur murCollisionMun;
-
-      String AngleCollisionMun() {
-        String ret = "fail";
-        String rapport = murCollisionMun.PosParRapport(xMun, yMun);
-
-        if (rapport == "haut" ||rapport ==  "bas") ret = "y";      
-        if (rapport == "gauche" ||rapport ==  "droite") ret = "x";      
-
-        return ret;
-      }
-    }
-    //------------------
-  }
-}
-
-//==============================
-
-void Setup_Tanks() {
-  AllTanks.add(new Tank(200, 200));
-  AllTanks.add(new Tank(400, 200));
 }
 
 void Fonctions_Tanks() {
-  for (int i = 0; i<AllTanks.size(); i++) {
-    Tank tank = AllTanks.get(i);
-
-    tank.Fonctions();
+  for (int i = AllTanks.size() - 1; i >= 0; i--) {
+    AllTanks.get(i).Fonctions();
   }
 }
