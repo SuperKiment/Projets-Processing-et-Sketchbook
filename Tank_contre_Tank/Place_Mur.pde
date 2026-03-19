@@ -17,8 +17,8 @@ class Place_Mur {
   }
 
   void RecupTaille() {
-    tailleX = abs(xB-mouseX)*2;
-    tailleY = abs(yB-mouseY)*2;
+    tailleX = abs(xB-sourisX)*2;
+    tailleY = abs(yB-sourisY)*2;
   }
 
   void Fonctions() {
@@ -29,8 +29,8 @@ class Place_Mur {
   }
 
   void Reset() {
-    xB = mouseX;
-    yB = mouseY;
+    xB = sourisX;
+    yB = sourisY;
   }
 
   void Place() {

@@ -47,8 +47,8 @@ class Bouton {
   }
 
   boolean SourisDessus() {
-    return mouseX > x - largeur/2 && mouseX < x + largeur/2 &&
-           mouseY > y - hauteur/2 && mouseY < y + hauteur/2;
+    return sourisX > x - largeur/2 && sourisX < x + largeur/2 &&
+           sourisY > y - hauteur/2 && sourisY < y + hauteur/2;
   }
 
   boolean EstClique() {

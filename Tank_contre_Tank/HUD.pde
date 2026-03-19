@@ -25,8 +25,10 @@ void Afficher_HUD() {
     noStroke();
     rect(sx, 0, segmentLarg, 4);
 
-    // Nom joueur
-    TexteGauche("J" + (i+1), sx + 10, 20, 16, COULEURS_JOUEURS[i]);
+    // Nom joueur + tank
+    String tankNom = (tank != null) ? tank.type.nom : "";
+    TexteGauche("J" + (i+1), sx + 10, 13, 14, COULEURS_JOUEURS[i]);
+    TexteGauche(tankNom, sx + 10, 28, 10, COULEUR_UI_TEXTE_DIM);
 
     // HP
     if (tank != null && tank.vivant) {
@@ -58,6 +60,19 @@ void Afficher_HUD() {
           rect(boostX + b * 14 - 4, 26, 8 * min(1, vie / 5.0), 2);
         }
       }
+      // Spécial cooldown
+      float cd = tank.CooldownSpecial();
+      float cdX = sx + segmentLarg - 80;
+      fill(cd >= 1.0 ? COULEUR_UI_ACCENT : #444444);
+      noStroke();
+      rectMode(CORNER);
+      rect(cdX, 10, 40, 16, 3);
+      fill(COULEUR_UI_ACCENT, 180);
+      rect(cdX, 10, 40 * cd, 16, 3);
+      fill(COULEUR_UI_TEXTE);
+      textAlign(CENTER, CENTER);
+      textSize(9);
+      text(tank.type.specialNom, cdX + 20, 17);
     } else {
       TexteGauche("K.O.", sx + 40, 20, 14, #EF5350);
     }
@@ -69,8 +84,12 @@ void Afficher_HUD() {
     text(partieActuelle.scores[i] + "/" + SCORE_VICTOIRE, sx + segmentLarg - 10, 20);
   }
 
-  // Numéro de manche
-  TexteCentre("Manche " + partieActuelle.manche, LARGEUR/2, barreHaut + 15, 12, COULEUR_UI_TEXTE_DIM);
+  // Numéro de manche + indicateur jour/nuit
+  String mancheLabel = "Manche " + partieActuelle.manche;
+  if (paramJourNuitAleatoire) {
+    mancheLabel += modeJour ? "  [Jour]" : "  [Nuit]";
+  }
+  TexteCentre(mancheLabel, LARGEUR/2, barreHaut + 15, 12, COULEUR_UI_TEXTE_DIM);
 
   pop();
 }
@@ -86,12 +105,14 @@ void Afficher_Pause() {
   TexteCentre("PAUSE", LARGEUR/2, HAUTEUR/2 - 60, 48, COULEUR_UI_TEXTE);
   TexteCentre("P pour reprendre", LARGEUR/2, HAUTEUR/2 + 10, 20, COULEUR_UI_TEXTE_DIM);
   TexteCentre("ECHAP pour quitter au menu", LARGEUR/2, HAUTEUR/2 + 45, 18, COULEUR_UI_TEXTE_DIM);
+  TexteCentre("TAB : changer filtre visuel (" + postShaderNoms[postShaderActuel] + ")", LARGEUR/2, HAUTEUR/2 + 80, 16, COULEUR_UI_TEXTE_DIM);
   pop();
 }
 
 void Afficher_FinManche() {
   // Dessiner le jeu en fond (gelé)
-  background(COULEUR_FOND_JEU);
+  FondEcran(CouleurFondJeu());
+  Dessiner_Traces();
   Fonctions_Murs();
   for (Tank t : AllTanks) {
     t.Affichage();
@@ -138,7 +159,6 @@ void Afficher_FinManche() {
 }
 
 void Afficher_FinPartie() {
-  background(COULEUR_FOND_MENU);
 
   // Trouver le gagnant
   int gagnant = 0;

@@ -6,6 +6,9 @@ enum Etat {
   MENU_PRINCIPAL,
   MENU_MANETTES,
   MENU_CARTES,
+  MENU_TANKS,
+  MENU_COMMANDES,
+  MENU_PARAMETRES,
   EN_JEU,
   PAUSE,
   FIN_MANCHE,
@@ -32,8 +35,17 @@ void SurEntreeEtat(Etat e) {
     case MENU_MANETTES:
       Setup_MenuManettes();
       break;
+    case MENU_TANKS:
+      Setup_MenuTanks();
+      break;
+    case MENU_COMMANDES:
+      cursor();
+      break;
+    case MENU_PARAMETRES:
+      cursor();
+      break;
     case EN_JEU:
-      if (etatPrecedent != Etat.PAUSE) {
+      if (etatPrecedent != Etat.PAUSE && etatPrecedent != Etat.FIN_MANCHE) {
         LancerPartie();
       }
       noCursor();

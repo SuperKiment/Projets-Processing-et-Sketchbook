@@ -6,6 +6,7 @@ precision mediump int;
 #define PROCESSING_TEXTURE_SHADER
 
 uniform sampler2D texture;
+uniform float time;
 varying vec4 vertTexCoord;
 
 void main() {

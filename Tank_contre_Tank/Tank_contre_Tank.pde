@@ -4,6 +4,7 @@
 
 void setup() {
   size(1080, 720, P2D);
+  surface.setResizable(true);
   noStroke();
   rectMode(CENTER);
 
@@ -13,26 +14,47 @@ void setup() {
   Setup_Cartes();
   Setup_InputManager();
   Setup_Eclairage();
+  Setup_Traces();
   Setup_MenuPrincipal();
 }
 
 void draw() {
+  background(0); // Bandes letterbox noires
+
+  push();
+  AppliquerEchelle();
+
   switch(etatActuel) {
     case MENU_PRINCIPAL:
+      FondEcran(COULEUR_FOND_MENU);
       Afficher_MenuPrincipal();
       break;
     case MENU_MANETTES:
+      FondEcran(COULEUR_FOND_MENU);
       Afficher_MenuManettes();
       break;
     case MENU_CARTES:
+      FondEcran(COULEUR_FOND_MENU);
       Afficher_MenuCartes();
       break;
+    case MENU_TANKS:
+      FondEcran(COULEUR_FOND_MENU);
+      Afficher_MenuTanks();
+      break;
+    case MENU_COMMANDES:
+      FondEcran(COULEUR_FOND_MENU);
+      Afficher_MenuCommandes();
+      break;
+    case MENU_PARAMETRES:
+      FondEcran(COULEUR_FOND_MENU);
+      Afficher_MenuParametres();
+      break;
     case EN_JEU:
-      background(COULEUR_FOND_JEU);
+      FondEcran(CouleurFondJeu());
       Fonctions_Partie();
       break;
     case PAUSE:
-      background(COULEUR_FOND_JEU);
+      FondEcran(CouleurFondJeu());
       Fonctions_Partie_Gelee();
       Afficher_Pause();
       break;
@@ -40,14 +62,31 @@ void draw() {
       Afficher_FinManche();
       break;
     case FIN_PARTIE:
+      FondEcran(COULEUR_FOND_MENU);
       Afficher_FinPartie();
       break;
   }
 
+  pop();
   inputManager.FinFrame();
 }
 
+color CouleurFondJeu() {
+  if (carteSelectionnee != null) return carteSelectionnee.FondActif();
+  return COULEUR_FOND_JEU;
+}
+
+void FondEcran(color c) {
+  push();
+  fill(c);
+  noStroke();
+  rectMode(CORNER);
+  rect(0, 0, LARGEUR, HAUTEUR);
+  pop();
+}
+
 void Fonctions_Partie_Gelee() {
+  Dessiner_Traces();
   Dessiner_OmbresMurs();
   Fonctions_Murs();
   for (Tank t : AllTanks) {
@@ -62,6 +101,7 @@ void Fonctions_Partie_Gelee() {
   ParticuleFonctions();
   Fonctions_TextesFlottants();
   Dessiner_Eclairage();
-  Appliquer_Vignette();
+  Appliquer_PostProcess();
   Afficher_HUD();
+  Afficher_LabelPostProcess();
 }

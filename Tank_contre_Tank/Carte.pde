@@ -44,6 +44,11 @@ class Carte {
   String description;
   int maxJoueurs;
   color couleurFond;
+  color couleurMur;
+  color couleurFondOriginal;
+  color couleurMurOriginal;
+  color couleurFondJour;   // fond clair pour le mode jour
+  color couleurMurJour;    // murs pour le mode jour
 
   ArrayList<DonneesMur> murs = new ArrayList<DonneesMur>();
   ArrayList<PointSpawn> spawns = new ArrayList<PointSpawn>();
@@ -54,6 +59,38 @@ class Carte {
     description = desc;
     maxJoueurs = mj;
     couleurFond = COULEUR_FOND_JEU;
+    couleurMur = COULEUR_MUR;
+    couleurFondOriginal = couleurFond;
+    couleurMurOriginal = couleurMur;
+    couleurFondJour = #C8B88A;  // sable par défaut
+    couleurMurJour = #8B7355;   // terre par défaut
+  }
+
+  void SetTheme(color fond, color mur) {
+    couleurFond = fond;
+    couleurMur = mur;
+    couleurFondOriginal = fond;
+    couleurMurOriginal = mur;
+  }
+
+  void SetThemeJour(color fondJour, color murJour) {
+    couleurFondJour = fondJour;
+    couleurMurJour = murJour;
+  }
+
+  void RestaureTheme() {
+    couleurFond = couleurFondOriginal;
+    couleurMur = couleurMurOriginal;
+  }
+
+  // Retourne le fond actif selon jour/nuit
+  color FondActif() {
+    return modeJour ? couleurFondJour : couleurFond;
+  }
+
+  // Retourne la couleur mur active selon jour/nuit
+  color MurActif() {
+    return modeJour ? couleurMurJour : couleurMur;
   }
 
   void AjouterMur(float x, float y, float tx, float ty) {
@@ -89,6 +126,7 @@ class Carte {
     AllMurs.clear();
     for (DonneesMur dm : murs) {
       Mur m = new Mur(dm.x, dm.y, dm.tailleX, dm.tailleY);
+      m.couleur = MurActif();
       m.type = dm.type;
       if (dm.type.equals("destructible") && dm.hp > 0) {
         m.RendreDestructible(dm.hp);
@@ -120,7 +158,7 @@ class Carte {
     rect(px, py, LARGEUR * echelle, HAUTEUR * echelle);
 
     // Murs
-    fill(COULEUR_MUR, 200);
+    fill(couleurMur, 200);
     rectMode(CENTER);
     for (DonneesMur dm : murs) {
       rect(px + dm.x * echelle, py + dm.y * echelle,

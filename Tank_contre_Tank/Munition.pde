@@ -294,7 +294,8 @@ class Munition {
   void PlacerMur(float mx, float my) {
     Mur m = new Mur(mx, my, type.murTailleX, type.murTailleY);
     m.RendreDestructible(type.murHp);
-    m.couleur = lerpColor(type.couleur, COULEUR_MUR, 0.5);
+    color murBase = (carteSelectionnee != null) ? carteSelectionnee.MurActif() : COULEUR_MUR;
+    m.couleur = lerpColor(type.couleur, murBase, 0.5);
     AllMurs.add(m);
     BoumParticulesCouleur(mx, my, 12, 25, 5, type.couleur);
   }
@@ -316,9 +317,11 @@ class Munition {
   }
 
   void Exploser() {
+    TraceExplosion(x, y, type.rayonExplosion);
     FeuParticules(x, y, 25);
     BoumParticulesCouleur(x, y, 15, (int)type.rayonExplosion, 8, #FF6600);
     FumeeParticules(x, y, 10);
+    FlashExplosion(x, y, type.rayonExplosion);
     for (Tank t : AllTanks) {
       if (!t.vivant) continue;
       if (dist(x, y, t.x, t.y) < type.rayonExplosion) {

@@ -15,8 +15,6 @@ void Setup_MenuManettes() {
 }
 
 void Afficher_MenuManettes() {
-  background(COULEUR_FOND_MENU);
-
   // Titre
   TexteCentre("MANETTES", LARGEUR/2, 40, 36, COULEUR_UI_TEXTE);
 

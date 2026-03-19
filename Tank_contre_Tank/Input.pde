@@ -32,13 +32,27 @@ void keyPressed() {
       Clavier_MenuManettes(key, keyCode);
       break;
 
+    case MENU_TANKS:
+      Clavier_MenuTanks(key, keyCode);
+      break;
+
+    case MENU_COMMANDES:
+      Clavier_MenuCommandes(key, keyCode);
+      break;
+
+    case MENU_PARAMETRES:
+      Clavier_MenuParametres(key, keyCode);
+      break;
+
     case EN_JEU:
       if (key == 'p' || key == 'P') ChangerEtat(Etat.PAUSE);
+      if (key == TAB) CyclerPostProcess();
       break;
 
     case PAUSE:
       if (key == 'p' || key == 'P') ChangerEtat(Etat.EN_JEU);
       if (keyCode == 27 || key == BACKSPACE) ChangerEtat(Etat.MENU_PRINCIPAL); // ESC
+      if (key == TAB) CyclerPostProcess();
       break;
 
     case FIN_MANCHE:
@@ -67,6 +81,7 @@ void keyReleased() {
 }
 
 void mousePressed() {
+  MettreAJourSourisVirtuelle();
   switch(etatActuel) {
     case MENU_PRINCIPAL:
       Clic_MenuPrincipal();
@@ -76,6 +91,12 @@ void mousePressed() {
       break;
     case MENU_MANETTES:
       Clic_MenuManettes();
+      break;
+    case MENU_TANKS:
+      Clic_MenuTanks();
+      break;
+    case MENU_PARAMETRES:
+      Clic_MenuParametres();
       break;
     case EN_JEU:
       if (DEBUG_MODE) {

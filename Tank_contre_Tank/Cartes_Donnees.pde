@@ -19,6 +19,8 @@ void Setup_Cartes() {
 // --- Arène : simple avec obstacles centraux ---
 Carte Carte_Arene() {
   Carte c = new Carte("Arene", "Arene ouverte avec obstacles centraux", 4);
+  c.SetTheme(#0A0A14, #707088); // Nuit urbaine : fond sombre bleuté, murs gris-bleu
+  c.SetThemeJour(#B8B0A0, #5A5A6E); // Jour : béton clair, murs gris foncé
   c.AjouterBordures(20);
 
   c.AjouterMur(LARGEUR/2, HAUTEUR/2, 80, 80);
@@ -42,6 +44,8 @@ Carte Carte_Arene() {
 // --- Labyrinthe : couloirs étroits ---
 Carte Carte_Labyrinthe() {
   Carte c = new Carte("Labyrinthe", "Couloirs etroits et angles morts", 4);
+  c.SetTheme(#0D1117, #3B5998); // Bunker : fond noir profond, murs bleu acier
+  c.SetThemeJour(#A0A8B0, #4A5A7A); // Jour : sol béton bleuté, murs acier
   c.AjouterBordures(20);
 
   c.AjouterMur(200, 180, 300, 20);
@@ -73,6 +77,8 @@ Carte Carte_Labyrinthe() {
 // --- Forteresse : deux camps retranchés ---
 Carte Carte_Forteresse() {
   Carte c = new Carte("Forteresse", "Deux forteresses face a face", 4);
+  c.SetTheme(#0B1A0B, #556B2F); // Militaire : fond vert très sombre, murs olive
+  c.SetThemeJour(#7A9A5A, #4A5A30); // Jour : herbe verte, murs kaki
   c.AjouterBordures(20);
 
   c.AjouterMur(180, HAUTEUR/2, 20, 200);
@@ -104,6 +110,8 @@ Carte Carte_Forteresse() {
 // --- Quatre Coins : action au centre ---
 Carte Carte_QuatreCoins() {
   Carte c = new Carte("Quatre Coins", "Abris dans les coins, combat au centre", 4);
+  c.SetTheme(#1A1408, #A0522D); // Désert : fond sable sombre, murs terre rouge
+  c.SetThemeJour(#D4C4A0, #8B5E3C); // Jour : sable chaud, murs terre cuite
   c.AjouterBordures(20);
 
   float offset = 150;
@@ -136,6 +144,8 @@ Carte Carte_QuatreCoins() {
 // --- Test Pickups : tous les pickups alignés ---
 Carte Carte_TestPickups() {
   Carte c = new Carte("Test Pickups", "Tous les pickups et munitions", 4);
+  c.SetTheme(#000000, #969696); // Classique : noir et gris
+  c.SetThemeJour(#C0C0C0, #606060); // Jour : gris clair, murs gris foncé
   c.AjouterBordures(20);
 
   c.AjouterSpawn(100, HAUTEUR/2 - 80, 0);
@@ -176,6 +186,8 @@ Carte Carte_TestPickups() {
 // --- Couloirs : lignes parallèles ---
 Carte Carte_Couloirs() {
   Carte c = new Carte("Couloirs", "Couloirs paralleles avec ouvertures", 4);
+  c.SetTheme(#120A18, #8B668B); // Néon : fond violet sombre, murs lavande
+  c.SetThemeJour(#C0B0C8, #6A5A7A); // Jour : sol lavande clair, murs violet
   c.AjouterBordures(20);
 
   float[] yPositions = { HAUTEUR * 0.25, HAUTEUR * 0.5, HAUTEUR * 0.75 };

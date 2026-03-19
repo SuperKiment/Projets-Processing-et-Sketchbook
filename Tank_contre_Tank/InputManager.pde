@@ -4,6 +4,9 @@
 
 InputManager inputManager;
 
+// Coordonnées souris virtuelles (pour le scaling)
+float sourisX, sourisY;
+
 class InputManager {
   PlayerInput[] joueurs = new PlayerInput[MAX_JOUEURS];
   int nbJoueursActifs = 2;
@@ -112,15 +115,18 @@ class PlayerInput {
   boolean tir;
   boolean tirMaintenu;
   boolean special;
+  boolean specialPresse;
   boolean pause;
 
   float axeX, axeY;
+  float rotationIntensiteX; // 0.0–1.0, intensité analogique pour la rotation
 
   ToucheClavier[] clavier;
   ManetteNative manette;
 
   boolean[] touchesMaintenues = new boolean[6];
   boolean tirPresse = false;
+  boolean specialPresseFlag = false; // event-driven, comme tirPresse
 
   PlayerInput(int id) { joueurId = id; }
 
@@ -144,16 +150,13 @@ class PlayerInput {
     clavier = null;
   }
 
-  void ReassignerClavier(ToucheClavier av, ToucheClavier re, ToucheClavier ga, ToucheClavier dr, ToucheClavier ti, ToucheClavier sp) {
-    AssignerClavier(av, re, ga, dr, ti, sp);
-  }
-
   void OnKeyPressed(char k, int kc) {
     if (clavier == null) return;
     for (int i = 0; i < 6; i++) {
       if (clavier[i].Correspond(k, kc)) {
         touchesMaintenues[i] = true;
         if (i == 4) tirPresse = true;
+        if (i == 5) specialPresseFlag = true;
       }
     }
   }
@@ -178,10 +181,6 @@ class PlayerInput {
   void MettreAJourManette() {
     float deadzone = 0.3;
 
-    // Xbox Linux joydev mapping :
-    // Axes: 0=LX, 1=LY, 2=LT, 3=RX, 4=RY, 5=RT, 6=DpadX, 7=DpadY
-    // Boutons: 0=A, 1=B, 2=X, 3=Y, 4=LB, 5=RB, 6=Back, 7=Start, 8=Xbox, 9=LS, 10=RS
-
     float stickX = manette.axes[0];
     float stickY = manette.axes[1];
     float dpadX  = manette.axes[6];
@@ -195,14 +194,23 @@ class PlayerInput {
     gauche  = (stickX < -deadzone) || (dpadX < -deadzone);
     droite  = (stickX > deadzone)  || (dpadX > deadzone);
 
+    // Intensité analogique pour la rotation
+    // Dpad = pleine vitesse (1.0), stick = proportionnel à la déviation
+    if (abs(dpadX) > deadzone) {
+      rotationIntensiteX = 1.0;
+    } else {
+      rotationIntensiteX = constrain(map(abs(stickX), deadzone, 1.0, 0.0, 1.0), 0.0, 1.0);
+    }
+
     // Tir : A, RB, ou gâchette droite
     boolean triggerDroit = manette.axes[5] > 0.3;
     tirMaintenu = manette.boutons[0] || manette.boutons[5] || triggerDroit;
     tir = manette.boutonsPresses[0] || manette.boutonsPresses[5];
 
-    // Spécial : B, LB, ou gâchette gauche
+    // Spécial : B, LB, ou gâchette gauche (event-driven via boutonsPresses)
     boolean triggerGauche = manette.axes[2] > 0.3;
     special = manette.boutons[1] || manette.boutons[4] || triggerGauche;
+    specialPresse = manette.boutonsPresses[1] || manette.boutonsPresses[4];
 
     // Pause : Start (bouton 7)
     pause = manette.boutonsPresses[7];
@@ -213,14 +221,17 @@ class PlayerInput {
     reculer = touchesMaintenues[1];
     gauche  = touchesMaintenues[2];
     droite  = touchesMaintenues[3];
+    rotationIntensiteX = 1.0;
     tirMaintenu = touchesMaintenues[4];
     tir = tirPresse;
     special = touchesMaintenues[5];
+    specialPresse = specialPresseFlag;
     pause = false;
   }
 
   void FinFrame() {
     tirPresse = false;
+    specialPresseFlag = false;
     pause = false;
   }
 }
@@ -228,4 +239,32 @@ class PlayerInput {
 void Setup_InputManager() {
   inputManager = new InputManager();
   InitManettes();
+}
+
+// --- Scaling helpers ---
+
+float echelleJeu() {
+  float sx = (float)width / LARGEUR;
+  float sy = (float)height / HAUTEUR;
+  return min(sx, sy);
+}
+
+float offsetXJeu() {
+  return (width - LARGEUR * echelleJeu()) / 2;
+}
+
+float offsetYJeu() {
+  return (height - HAUTEUR * echelleJeu()) / 2;
+}
+
+void MettreAJourSourisVirtuelle() {
+  float e = echelleJeu();
+  sourisX = (mouseX - offsetXJeu()) / e;
+  sourisY = (mouseY - offsetYJeu()) / e;
+}
+
+void AppliquerEchelle() {
+  MettreAJourSourisVirtuelle();
+  translate(offsetXJeu(), offsetYJeu());
+  scale(echelleJeu());
 }

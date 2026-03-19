@@ -13,8 +13,6 @@ void Setup_MenuCartes() {
 }
 
 void Afficher_MenuCartes() {
-  background(COULEUR_FOND_MENU);
-
   // Titre
   TexteCentre("CHOISIR UNE CARTE", LARGEUR/2, 40, 36, COULEUR_UI_TEXTE);
 
@@ -61,8 +59,8 @@ void Afficher_MenuCartes() {
     TexteCentre(carte.maxJoueurs + "J", cx, cy + carteHaut/2 - 12, 13, COULEUR_UI_TEXTE_DIM);
 
     // Détection clic sur la carte
-    if (mouseX > cx - carteLarg/2 && mouseX < cx + carteLarg/2 &&
-        mouseY > cy - carteHaut/2 && mouseY < cy + carteHaut/2) {
+    if (sourisX > cx - carteLarg/2 && sourisX < cx + carteLarg/2 &&
+        sourisY > cy - carteHaut/2 && sourisY < cy + carteHaut/2) {
       if (mousePressed && mouseButton == LEFT) {
         carteIndex = i;
       }
@@ -113,7 +111,7 @@ void Clic_MenuCartes() {
 
   if (bLancer.SourisDessus() || menuValiderPresse) {
     carteSelectionnee = ToutesLesCartes.get(carteIndex);
-    ChangerEtat(Etat.EN_JEU);
+    ChangerEtat(Etat.MENU_TANKS);
   }
   if (bRetour.SourisDessus()) {
     ChangerEtat(Etat.MENU_PRINCIPAL);
@@ -125,7 +123,7 @@ void Clavier_MenuCartes(char k, int kc) {
   if (k == 'd' || (k == CODED && kc == RIGHT)) CarteNaviguer(1);
   if (k == ENTER || k == RETURN || k == ' ') {
     carteSelectionnee = ToutesLesCartes.get(carteIndex);
-    ChangerEtat(Etat.EN_JEU);
+    ChangerEtat(Etat.MENU_TANKS);
   }
   if (k == BACKSPACE || k == ESC) {
     ChangerEtat(Etat.MENU_PRINCIPAL);

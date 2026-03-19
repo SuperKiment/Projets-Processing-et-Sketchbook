@@ -25,19 +25,41 @@ class Partie {
 
   void NouvelleManche() {
     manche++;
+
+    // Jour/nuit aléatoire
+    if (paramJourNuitAleatoire) {
+      modeJour = random(1) > 0.5;
+    } else {
+      modeJour = false; // toujours nuit par défaut
+    }
+
+    // Changement de couleurs aléatoire entre manches
+    if (paramCouleursAleatoires) {
+      int idx = (int)random(PALETTES_COULEURS.length);
+      carte.couleurFond = PALETTES_COULEURS[idx][0];
+      carte.couleurMur = PALETTES_COULEURS[idx][1];
+      carte.couleurFondJour = PALETTES_COULEURS[idx][2];
+      carte.couleurMurJour = PALETTES_COULEURS[idx][3];
+    } else {
+      carte.RestaureTheme();
+    }
+
     carte.Charger(); // recharge murs + pickups fixes
     AllTanks.clear();
     AllMunitions.clear();
     AllParticules.clear();
     AllZonesFeu.clear();
     AllTextesFlottants.clear();
+    AllFlashs.clear();
 
     // 2 pickups aléatoires
     SpawnerPickupsAleatoires(2);
 
     for (int i = 0; i < nbJoueurs; i++) {
       PointSpawn sp = carte.spawns.get(i % carte.spawns.size());
-      TypeTank type = TypesTanks.get("Normal");
+      String nomTank = tankChoisiParJoueur[i];
+      TypeTank type = TypesTanks.get(nomTank);
+      if (type == null) type = TypesTanks.get("Sentinelle");
       PlayerInput pi = inputManager.GetJoueur(i);
 
       Tank t = new Tank(i, type, sp.x, sp.y, sp.dir, pi);
@@ -57,6 +79,7 @@ class Partie {
       }
     }
 
+    Dessiner_Traces();
     Dessiner_OmbresMurs();
     Fonctions_Murs();
 
@@ -72,13 +95,14 @@ class Partie {
     Fonctions_TextesFlottants();
 
     Dessiner_Eclairage();
-    Appliquer_Vignette();
+    Appliquer_PostProcess();
 
     if (DEBUG_MODE) {
       placeMur.Fonctions();
     }
 
     Afficher_HUD();
+    Afficher_LabelPostProcess();
     VerifierFinManche();
   }
 
@@ -119,6 +143,7 @@ void LancerPartie() {
   int nbJoueurs = CompterJoueursActifs();
   if (nbJoueurs < 2) nbJoueurs = 2; // Minimum 2 joueurs
 
+  EffacerTraces();
   partieActuelle = new Partie(carteSelectionnee, nbJoueurs);
   partieActuelle.Demarrer();
 }

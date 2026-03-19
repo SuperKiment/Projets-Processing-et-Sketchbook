@@ -9,26 +9,24 @@ void Setup_MenuPrincipal() {
   menuPrincipal = new SelecteurMenu();
 
   float cx = LARGEUR / 2;
-  menuPrincipal.AjouterBouton(new Bouton("JOUER", cx, 350, 300, 60));
-  menuPrincipal.AjouterBouton(new Bouton("MANETTES", cx, 440, 300, 60));
+  menuPrincipal.AjouterBouton(new Bouton("JOUER", cx, 300, 300, 55));
+  menuPrincipal.AjouterBouton(new Bouton("MANETTES", cx, 370, 300, 55));
+  menuPrincipal.AjouterBouton(new Bouton("COMMANDES", cx, 440, 300, 55));
+  menuPrincipal.AjouterBouton(new Bouton("PARAMETRES", cx, 510, 300, 55));
 
   menuSetup = true;
 }
 
 void Afficher_MenuPrincipal() {
-  background(COULEUR_FOND_MENU);
-
   if (!menuSetup) Setup_MenuPrincipal();
 
   // Titre
-  TexteCentre("TANK CONTRE TANK", LARGEUR/2, 150, 52, COULEUR_UI_TEXTE);
+  TexteCentre("TANK CONTRE TANK", LARGEUR/2, 130, 52, COULEUR_UI_TEXTE);
+  TexteCentre("Combat local multijoueur", LARGEUR/2, 190, 18, COULEUR_UI_TEXTE_DIM);
 
-  // Sous-titre
-  TexteCentre("Combat local multijoueur", LARGEUR/2, 210, 18, COULEUR_UI_TEXTE_DIM);
-
-  // Dessin décoratif : petit tank stylisé
+  // Dessin décoratif
   push();
-  translate(LARGEUR/2, 270);
+  translate(LARGEUR/2, 250);
   fill(COULEUR_UI_ACCENT);
   noStroke();
   rectMode(CENTER);
@@ -55,14 +53,13 @@ void Afficher_MenuPrincipal() {
 void Clic_MenuPrincipal() {
   if (menuPrincipal == null) return;
 
-  // Clic souris ou validation
   for (int i = 0; i < menuPrincipal.elements.size(); i++) {
     Bouton b = menuPrincipal.elements.get(i);
-    if (b.SourisDessus() || b.selectionne) {
-      if (b.SourisDessus() || menuValiderPresse) {
-        if (i == 0) ChangerEtat(Etat.MENU_CARTES);
-        if (i == 1) ChangerEtat(Etat.MENU_MANETTES);
-      }
+    if (b.SourisDessus() || (b.selectionne && menuValiderPresse)) {
+      if (i == 0) ChangerEtat(Etat.MENU_CARTES);
+      if (i == 1) ChangerEtat(Etat.MENU_MANETTES);
+      if (i == 2) ChangerEtat(Etat.MENU_COMMANDES);
+      if (i == 3) ChangerEtat(Etat.MENU_PARAMETRES);
     }
   }
 }
@@ -80,6 +77,9 @@ void Valider_MenuActuel() {
       break;
     case MENU_MANETTES:
       Clic_MenuManettes();
+      break;
+    case MENU_TANKS:
+      Clic_MenuTanks();
       break;
     default:
       break;

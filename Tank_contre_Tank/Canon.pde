@@ -71,6 +71,11 @@ class Canon {
         m.multDegats = 2.0;
       }
 
+      // Surcharge (Artilleur)
+      if (proprietaire.surchargeActive) {
+        m.multDegats *= 3.0;
+      }
+
       AllMunitions.add(m);
     }
 
@@ -78,6 +83,7 @@ class Canon {
     if (!typeATirer.comportement.equals("mine")) {
       EtincellesDir(spawnX, spawnY, 4, proprietaire.dir, PI/6, 3, typeATirer.couleur);
       FumeeParticules(spawnX, spawnY, 2);
+      FlashTir(spawnX, spawnY, typeATirer.couleur);
     }
 
     if (munsSpecialesRestantes > 0) {
@@ -85,6 +91,12 @@ class Canon {
       if (munsSpecialesRestantes <= 0) {
         typeMunActuel = typeMunDefaut;
       }
+    }
+
+    // Consommer la surcharge après un tir
+    if (proprietaire.surchargeActive) {
+      proprietaire.surchargeActive = false;
+      FlashExplosion(spawnX, spawnY, 30);
     }
   }
 
