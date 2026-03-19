@@ -113,6 +113,7 @@ void Afficher_FinManche() {
   // Dessiner le jeu en fond (gelé)
   FondEcran(CouleurFondJeu());
   Dessiner_Traces();
+  Dessiner_Terrains();
   Fonctions_Murs();
   for (Tank t : AllTanks) {
     t.Affichage();
@@ -188,6 +189,12 @@ color BoostCouleur(String cat) {
   if (cat.equals("boost_invisible")) return #8888CC;
   if (cat.equals("boost_degats")) return #FF2200;
   if (cat.equals("boost_aimant")) return #CCCC44;
+  if (cat.equals("boost_vampirique")) return #CC0044;
+  if (cat.equals("boost_gigantisme")) return #FF8800;
+  if (cat.equals("boost_miniature")) return #88CCFF;
+  if (cat.equals("boost_fantome")) return #9966FF;
+  if (cat.equals("boost_magnetique")) return #44FFAA;
   if (cat.equals("ralenti")) return #4488FF;
+  if (cat.equals("herbe_cache")) return #228822;
   return #FFFFFF;
 }

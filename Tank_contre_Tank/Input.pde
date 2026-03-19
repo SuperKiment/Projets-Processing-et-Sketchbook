@@ -115,3 +115,9 @@ void mouseReleased() {
     placeMur.lock = false;
   }
 }
+
+void mouseWheel(MouseEvent event) {
+  if (etatActuel == Etat.MENU_CARTES) {
+    ScrollCartes(event.getCount());
+  }
+}

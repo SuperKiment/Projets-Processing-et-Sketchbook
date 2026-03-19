@@ -21,11 +21,23 @@ class Canon {
     noStroke();
     float longueur = proprietaire.type.canonLongueur;
     float largeur = proprietaire.type.canonLargeur;
-    rect(longueur/2, 0, longueur, largeur);
 
-    if (munsSpecialesRestantes > 0) {
-      fill(typeMunActuel.couleur, 180);
-      ellipse(longueur * 0.8, 0, 5, 5);
+    if (proprietaire.type.forme.equals("double_canon")) {
+      // Double canon espacé
+      float ecart = largeur * 1.2;
+      rect(longueur/2, -ecart, longueur, largeur);
+      rect(longueur/2, ecart, longueur, largeur);
+      if (munsSpecialesRestantes > 0) {
+        fill(typeMunActuel.couleur, 180);
+        ellipse(longueur * 0.8, -ecart, 4, 4);
+        ellipse(longueur * 0.8, ecart, 4, 4);
+      }
+    } else {
+      rect(longueur/2, 0, longueur, largeur);
+      if (munsSpecialesRestantes > 0) {
+        fill(typeMunActuel.couleur, 180);
+        ellipse(longueur * 0.8, 0, 5, 5);
+      }
     }
   }
 
@@ -84,6 +96,18 @@ class Canon {
       EtincellesDir(spawnX, spawnY, 4, proprietaire.dir, PI/6, 3, typeATirer.couleur);
       FumeeParticules(spawnX, spawnY, 2);
       FlashTir(spawnX, spawnY, typeATirer.couleur);
+      // Son selon le type
+      String comp = typeATirer.comportement;
+      if (comp.equals("laser")) JouerSon("tir_laser");
+      else if (typeATirer.nom.equals("shotgun")) JouerSon("tir_shotgun");
+      else if (comp.equals("guidee")) JouerSon("tir_missile");
+      else if (comp.equals("grenade")) JouerSon("tir_grenade");
+      else if (comp.equals("plasma")) JouerSon("tir_plasma");
+      else if (comp.equals("fumigene")) JouerSon("tir_fumigene");
+      else if (typeATirer.explose) JouerSon("tir_explosif");
+      else JouerSon("tir");
+    } else {
+      JouerSon("tir_mine");
     }
 
     if (munsSpecialesRestantes > 0) {

@@ -48,6 +48,7 @@ void SurEntreeEtat(Etat e) {
       if (etatPrecedent != Etat.PAUSE && etatPrecedent != Etat.FIN_MANCHE) {
         LancerPartie();
       }
+      JouerSon("manche_debut");
       noCursor();
       break;
     case PAUSE:
@@ -56,9 +57,11 @@ void SurEntreeEtat(Etat e) {
     case FIN_MANCHE:
       cursor();
       timerFinManche = millis();
+      JouerSon("manche_fin");
       break;
     case FIN_PARTIE:
       cursor();
+      JouerSon("victoire");
       break;
     default:
       break;

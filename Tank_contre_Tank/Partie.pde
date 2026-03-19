@@ -49,8 +49,16 @@ class Partie {
     AllMunitions.clear();
     AllParticules.clear();
     AllZonesFeu.clear();
+    AllZonesFumee.clear();
+    AllTourelles.clear();
     AllTextesFlottants.clear();
     AllFlashs.clear();
+
+    // Terrains (persistent entre manches, placés qu'à la première manche)
+    if (manche == 1) {
+      AllTerrains.clear();
+      SpawnerTerrainsAleatoires(6);
+    }
 
     // 2 pickups aléatoires
     SpawnerPickupsAleatoires(2);
@@ -80,6 +88,7 @@ class Partie {
     }
 
     Dessiner_Traces();
+    Dessiner_Terrains();
     Dessiner_OmbresMurs();
     Fonctions_Murs();
 
@@ -90,6 +99,9 @@ class Partie {
 
     Fonctions_Munitions();
     Fonctions_ZonesFeu();
+    Fonctions_ZonesFumee();
+    Fonctions_Tourelles();
+    Fonctions_Terrains();
     Fonctions_Pickups();
     ParticuleFonctions();
     Fonctions_TextesFlottants();
@@ -144,6 +156,7 @@ void LancerPartie() {
   if (nbJoueurs < 2) nbJoueurs = 2; // Minimum 2 joueurs
 
   EffacerTraces();
+  AllTerrains.clear();
   partieActuelle = new Partie(carteSelectionnee, nbJoueurs);
   partieActuelle.Demarrer();
 }

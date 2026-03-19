@@ -155,4 +155,62 @@ void Setup_TypesMunitions() {
   ricochet.degats = 1; ricochet.rebondsMax = 25;
   ricochet.comportement = "ricochet"; ricochet.couleur = #EEDD33;
   TypesMunitions.put("ricochet", ricochet);
+
+  // 16. Plasma - traverse les murs (pas les bords)
+  TypeMunition plasma = new TypeMunition("plasma");
+  plasma.vitesse = 12; plasma.dureeVie = 2000; plasma.taille = 10;
+  plasma.degats = 2; plasma.rebondsMax = 0;
+  plasma.perce = true;
+  plasma.comportement = "plasma"; plasma.couleur = #00FFCC;
+  TypesMunitions.put("plasma", plasma);
+
+  // 17. Téléporteur - téléporte l'ennemi touché
+  TypeMunition teleporteur = new TypeMunition("teleporteur");
+  teleporteur.vitesse = 9; teleporteur.dureeVie = 3000; teleporteur.taille = 8;
+  teleporteur.degats = 0; teleporteur.rebondsMax = 2;
+  teleporteur.comportement = "teleporteur"; teleporteur.couleur = #CC44FF;
+  TypesMunitions.put("teleporteur", teleporteur);
+
+  // 18. Aspirante - suit l'ennemi le plus proche
+  TypeMunition aspirante = new TypeMunition("aspirante");
+  aspirante.vitesse = 8; aspirante.dureeVie = 4000; aspirante.taille = 9;
+  aspirante.degats = 1; aspirante.rebondsMax = 1;
+  aspirante.comportement = "aspirante"; aspirante.couleur = #FF66AA;
+  TypesMunitions.put("aspirante", aspirante);
+
+  // 19. Météore - très lent, explosion massive
+  TypeMunition meteore = new TypeMunition("meteore");
+  meteore.vitesse = 4; meteore.dureeVie = 5000; meteore.taille = 18;
+  meteore.degats = 3; meteore.rebondsMax = 0;
+  meteore.explose = true; meteore.rayonExplosion = 120;
+  meteore.comportement = "meteore"; meteore.couleur = #FF4400;
+  TypesMunitions.put("meteore", meteore);
+
+  // 20. Chaîne - saute à l'ennemi suivant après impact
+  TypeMunition chaine = new TypeMunition("chaine");
+  chaine.vitesse = 11; chaine.dureeVie = 3000; chaine.taille = 7;
+  chaine.degats = 1; chaine.rebondsMax = 0;
+  chaine.comportement = "chaine"; chaine.couleur = #AAFFFF;
+  TypesMunitions.put("chaine", chaine);
+
+  // 21. Forage - détruit tous les murs au contact
+  TypeMunition forage = new TypeMunition("forage");
+  forage.vitesse = 4; forage.dureeVie = 6000; forage.taille = 14;
+  forage.degats = 1; forage.rebondsMax = 0;
+  forage.comportement = "forage"; forage.couleur = #BB8844;
+  TypesMunitions.put("forage", forage);
+
+  // 22. Miroir - rebondit sur les tanks et inverse leur direction
+  TypeMunition miroir = new TypeMunition("miroir");
+  miroir.vitesse = 10; miroir.dureeVie = 4000; miroir.taille = 8;
+  miroir.degats = 0; miroir.rebondsMax = 5;
+  miroir.comportement = "miroir"; miroir.couleur = #DDDDFF;
+  TypesMunitions.put("miroir", miroir);
+
+  // 23. Fumigène - crée un nuage de fumée opaque à l'impact
+  TypeMunition fumigene = new TypeMunition("fumigene");
+  fumigene.vitesse = 7; fumigene.dureeVie = 2000; fumigene.taille = 12;
+  fumigene.degats = 0; fumigene.rebondsMax = 0;
+  fumigene.comportement = "fumigene"; fumigene.couleur = #888888;
+  TypesMunitions.put("fumigene", fumigene);
 }

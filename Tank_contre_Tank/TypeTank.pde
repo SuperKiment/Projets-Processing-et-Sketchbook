@@ -121,6 +121,81 @@ void Setup_TypesTanks() {
   TypesTanks.put("Fantome", t);
   ListeNomsTanks.add("Fantome");
 
+  // --- Ingenieur : pose des tourelles automatiques ---
+  t = new TypeTank("Ingenieur");
+  t.description = "Pose des tourelles qui tirent seules";
+  t.specialNom = "Tourelle";
+  t.specialDesc = "Place une tourelle auto";
+  t.speedMax = 3.5; t.dirSpeed = PI/50;
+  t.taille = 22; t.hitboxRayon = 12;
+  t.hpMax = 3; t.cadenceTir = 600;
+  t.typeMunitionDefaut = "standard";
+  t.canonLongueur = 35; t.canonLargeur = 9;
+  t.forme = "carre";
+  t.specialCooldown = 12000;
+  TypesTanks.put("Ingenieur", t);
+  ListeNomsTanks.add("Ingenieur");
+
+  // --- Berserker : gagne en puissance quand blesse ---
+  t = new TypeTank("Berserker");
+  t.description = "Plus fort quand il est blesse";
+  t.specialNom = "Rage";
+  t.specialDesc = "Vitesse et degats x2 pendant 3s";
+  t.speedMax = 4.5; t.dirSpeed = PI/45;
+  t.taille = 24; t.hitboxRayon = 13;
+  t.hpMax = 5; t.cadenceTir = 450;
+  t.typeMunitionDefaut = "standard";
+  t.canonLongueur = 38; t.canonLargeur = 12;
+  t.forme = "hexagone";
+  t.specialCooldown = 10000;
+  TypesTanks.put("Berserker", t);
+  ListeNomsTanks.add("Berserker");
+
+  // --- Magnetiseur : attire ou repousse ---
+  t = new TypeTank("Magnetiseur");
+  t.description = "Controle les projectiles autour de lui";
+  t.specialNom = "Impulsion";
+  t.specialDesc = "Repousse tout autour de soi";
+  t.speedMax = 4; t.dirSpeed = PI/48;
+  t.taille = 20; t.hitboxRayon = 11;
+  t.hpMax = 3; t.cadenceTir = 550;
+  t.typeMunitionDefaut = "emp";
+  t.canonLongueur = 38; t.canonLargeur = 9;
+  t.forme = "cercle";
+  t.specialCooldown = 8000;
+  TypesTanks.put("Magnetiseur", t);
+  ListeNomsTanks.add("Magnetiseur");
+
+  // --- Pyromane : specialise dans le feu et les degats de zone ---
+  t = new TypeTank("Pyromane");
+  t.description = "Brule tout sur son passage";
+  t.specialNom = "Napalm";
+  t.specialDesc = "Anneau de feu autour de soi";
+  t.speedMax = 4; t.dirSpeed = PI/48;
+  t.taille = 20; t.hitboxRayon = 11;
+  t.hpMax = 3; t.cadenceTir = 350;
+  t.typeMunitionDefaut = "incendiaire";
+  t.canonLongueur = 32; t.canonLargeur = 10;
+  t.forme = "trapeze";
+  t.specialCooldown = 9000;
+  TypesTanks.put("Pyromane", t);
+  ListeNomsTanks.add("Pyromane");
+
+  // --- Colosse : double canon, recul massif ---
+  t = new TypeTank("Colosse");
+  t.description = "Double canon, recul enorme";
+  t.specialNom = "Salve";
+  t.specialDesc = "Tire 8 projectiles en cercle";
+  t.speedMax = 2.8; t.dirSpeed = PI/60;
+  t.taille = 28; t.hitboxRayon = 15;
+  t.hpMax = 4; t.cadenceTir = 700;
+  t.typeMunitionDefaut = "standard";
+  t.canonLongueur = 45; t.canonLargeur = 7;
+  t.forme = "double_canon";
+  t.specialCooldown = 11000;
+  TypesTanks.put("Colosse", t);
+  ListeNomsTanks.add("Colosse");
+
   // Init sélections par défaut
   for (int i = 0; i < 4; i++) {
     tankChoisiParJoueur[i] = "Sentinelle";

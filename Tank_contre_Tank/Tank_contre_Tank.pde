@@ -15,6 +15,7 @@ void setup() {
   Setup_InputManager();
   Setup_Eclairage();
   Setup_Traces();
+  Setup_Sons();
   Setup_MenuPrincipal();
 }
 
@@ -87,6 +88,7 @@ void FondEcran(color c) {
 
 void Fonctions_Partie_Gelee() {
   Dessiner_Traces();
+  Dessiner_Terrains();
   Dessiner_OmbresMurs();
   Fonctions_Murs();
   for (Tank t : AllTanks) {

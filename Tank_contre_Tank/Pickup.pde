@@ -165,11 +165,13 @@ void DessinerIcone(String icone, float x, float y, float taille) {
 void AppliquerPickup(Tank tank, TypePickup tp) {
   if (tp.categorie.equals("munition")) {
     tank.canon.ChangerMunition(tp.typeMunition, tp.nbTirs);
+    JouerSon("pickup");
   } else if (tp.categorie.equals("sante")) {
     tank.hp = min(tank.hp + tp.soin, tank.type.hpMax);
+    JouerSon("pickup_sante");
   } else {
-    // Tous les boosts passent par ici
     tank.boosts.add(new BoostActif(tp.categorie, tp.multiplicateur, tp.dureeEffet));
+    JouerSon("boost_actif");
   }
 }
 
@@ -248,6 +250,38 @@ void Setup_TypesPickups() {
   r.couleur = #EEDD33; r.typeMunition = "ricochet"; r.nbTirs = 3; r.icone = "losange";
   TypesPickups.put("mun_ricochet", r);
 
+  r = new TypePickup("Plasma", "Traverse les murs", "munition");
+  r.couleur = #00FFCC; r.typeMunition = "plasma"; r.nbTirs = 4; r.icone = "etoile";
+  TypesPickups.put("mun_plasma", r);
+
+  r = new TypePickup("Teleporteur", "Teleporte l'ennemi", "munition");
+  r.couleur = #CC44FF; r.typeMunition = "teleporteur"; r.nbTirs = 3; r.icone = "losange";
+  TypesPickups.put("mun_teleporteur", r);
+
+  r = new TypePickup("Aspirante", "Poursuit les ennemis", "munition");
+  r.couleur = #FF66AA; r.typeMunition = "aspirante"; r.nbTirs = 3; r.icone = "cercle";
+  TypesPickups.put("mun_aspirante", r);
+
+  r = new TypePickup("Meteore", "Explosion massive", "munition");
+  r.couleur = #FF4400; r.typeMunition = "meteore"; r.nbTirs = 1; r.icone = "cercle";
+  TypesPickups.put("mun_meteore", r);
+
+  r = new TypePickup("Chaine", "Saute entre ennemis", "munition");
+  r.couleur = #AAFFFF; r.typeMunition = "chaine"; r.nbTirs = 3; r.icone = "etoile";
+  TypesPickups.put("mun_chaine", r);
+
+  r = new TypePickup("Forage", "Detruit tous les murs", "munition");
+  r.couleur = #BB8844; r.typeMunition = "forage"; r.nbTirs = 2; r.icone = "carre";
+  TypesPickups.put("mun_forage", r);
+
+  r = new TypePickup("Miroir", "Repousse les ennemis", "munition");
+  r.couleur = #DDDDFF; r.typeMunition = "miroir"; r.nbTirs = 4; r.icone = "losange";
+  TypesPickups.put("mun_miroir", r);
+
+  r = new TypePickup("Fumigene", "Cree un ecran de fumee", "munition");
+  r.couleur = #888888; r.typeMunition = "fumigene"; r.nbTirs = 3; r.icone = "cercle";
+  TypesPickups.put("mun_fumigene", r);
+
   // === SANTE ===
   r = new TypePickup("Reparation", "+1 HP", "sante");
   r.couleur = #66FF66; r.soin = 1; r.icone = "croix"; r.respawnDelai = 12000;
@@ -283,6 +317,31 @@ void Setup_TypesPickups() {
   r.couleur = #CCCC44; r.multiplicateur = 1; r.dureeEffet = 8000;
   r.icone = "cercle"; r.respawnDelai = 10000;
   TypesPickups.put("boost_aimant", r);
+
+  r = new TypePickup("Vampirique", "Drain de vie sur hit", "boost_vampirique");
+  r.couleur = #CC0044; r.multiplicateur = 1; r.dureeEffet = 6000;
+  r.icone = "triangle"; r.respawnDelai = 12000;
+  TypesPickups.put("boost_vampirique", r);
+
+  r = new TypePickup("Gigantisme", "Taille doublee", "boost_gigantisme");
+  r.couleur = #FF8800; r.multiplicateur = 2.0; r.dureeEffet = 6000;
+  r.icone = "carre"; r.respawnDelai = 12000;
+  TypesPickups.put("boost_gigantisme", r);
+
+  r = new TypePickup("Miniature", "Taille divisee par 2", "boost_miniature");
+  r.couleur = #88CCFF; r.multiplicateur = 0.5; r.dureeEffet = 6000;
+  r.icone = "losange"; r.respawnDelai = 12000;
+  TypesPickups.put("boost_miniature", r);
+
+  r = new TypePickup("Passe-muraille", "Traverse les murs", "boost_fantome");
+  r.couleur = #9966FF; r.multiplicateur = 1; r.dureeEffet = 4000;
+  r.icone = "etoile"; r.respawnDelai = 15000;
+  TypesPickups.put("boost_fantome", r);
+
+  r = new TypePickup("Magnetique", "Repousse les projectiles", "boost_magnetique");
+  r.couleur = #44FFAA; r.multiplicateur = 1; r.dureeEffet = 5000;
+  r.icone = "cercle"; r.respawnDelai = 12000;
+  TypesPickups.put("boost_magnetique", r);
 
   // === CLES POUR ALEATOIRE ===
   for (String cle : TypesPickups.keySet()) {

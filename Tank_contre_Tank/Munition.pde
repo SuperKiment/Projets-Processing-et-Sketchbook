@@ -4,6 +4,48 @@
 
 ArrayList<Munition> AllMunitions = new ArrayList<Munition>();
 ArrayList<ZoneFeu> AllZonesFeu = new ArrayList<ZoneFeu>();
+ArrayList<ZoneFumee> AllZonesFumee = new ArrayList<ZoneFumee>();
+
+// --- Zone de fumée (fumigène) ---
+
+class ZoneFumee {
+  float x, y, rayon;
+  float timer, duree;
+
+  ZoneFumee(float nx, float ny, float nr, float nd) {
+    x = nx; y = ny; rayon = nr; duree = nd;
+    timer = millis();
+  }
+
+  void Fonctions() {
+    float vie = 1.0 - (millis() - timer) / duree;
+    // Particules de fumée
+    if (random(1) > 0.3) {
+      AllParticules.add(new Particule(
+        x + random(-rayon, rayon), y + random(-rayon, rayon),
+        random(6, 14), lerpColor(#555555, #999999, random(1)), random(300, 800),
+        random(-0.5, 0.5), random(-1, -0.3), 0.95, false
+      ));
+    }
+    // Zone visuelle
+    push();
+    noStroke();
+    fill(#888888, vie * 40);
+    ellipse(x, y, rayon * 2, rayon * 2);
+    fill(#AAAAAA, vie * 25);
+    ellipse(x, y, rayon * 1.4, rayon * 1.4);
+    pop();
+  }
+
+  boolean Mort() { return millis() - timer >= duree; }
+}
+
+void Fonctions_ZonesFumee() {
+  for (int i = AllZonesFumee.size() - 1; i >= 0; i--) {
+    AllZonesFumee.get(i).Fonctions();
+    if (AllZonesFumee.get(i).Mort()) AllZonesFumee.remove(i);
+  }
+}
 
 // --- Zone de feu (incendiaire) ---
 
@@ -94,6 +136,33 @@ class Munition {
       }
     }
 
+    // === ASPIRANTE : homing vers l'ennemi le plus proche ===
+    if (comp.equals("aspirante")) {
+      Tank cible = null;
+      float minDist = 300; // rayon de détection
+      for (Tank t : AllTanks) {
+        if (t.joueurId == proprietaireId || !t.vivant) continue;
+        float d = dist(x, y, t.x, t.y);
+        if (d < minDist) { minDist = d; cible = t; }
+      }
+      if (cible != null) {
+        float target = atan2(cible.y - y, cible.x - x);
+        float diff = target - ori;
+        while (diff > PI) diff -= TWO_PI;
+        while (diff < -PI) diff += TWO_PI;
+        ori += diff * 0.04;
+      }
+    }
+
+    // === METEORE : grossit et ralentit ===
+    if (comp.equals("meteore")) {
+      speed *= 0.995;
+      // Tremblements de l'écran simulés par particules
+      if (frameCount % 3 == 0) {
+        FeuParticules(x + random(-10, 10), y + random(-10, 10), 2);
+      }
+    }
+
     // === GRENADE : décélération ===
     if (comp.equals("grenade")) {
       speed *= 0.96;
@@ -108,37 +177,80 @@ class Munition {
       }
     }
 
+    // === FORAGE : particules de foreuse ===
+    if (comp.equals("forage")) {
+      if (frameCount % 2 == 0) {
+        EtincellesDir(x, y, 2, ori + PI, PI/2, 2, type.couleur);
+      }
+    }
+
     // === COLLISION MURS ===
     float nextX = x + speed * cos(ori);
     float nextY = y + speed * sin(ori);
 
-    for (int i = 0; i < AllMurs.size(); i++) {
-      Mur mur = AllMurs.get(i);
-      if (mur.DansMur(nextX, nextY)) {
-        if (type.placeMur) {
-          PlacerMur(x, y);
+    // Plasma traverse les murs (pas les bordures)
+    if (comp.equals("plasma")) {
+      // Ne rebondit que sur les bordures (les 4 premiers murs)
+      for (int i = 0; i < min(4, AllMurs.size()); i++) {
+        Mur mur = AllMurs.get(i);
+        if (mur.DansMur(nextX, nextY)) {
           aSupprimer = true;
+          BoumParticulesCouleur(x, y, 8, 20, 4, type.couleur);
           return;
         }
-        if (mur.EstDestructible()) {
-          mur.PrendreDegas(1);
-          BoumParticulesCouleur(x, y, 10, 20, 5, mur.couleur);
-          FumeeParticules(x, y, 4);
-          aSupprimer = true;
-          return;
+      }
+    }
+    // Forage détruit tous les murs au contact
+    else if (comp.equals("forage")) {
+      for (int i = AllMurs.size() - 1; i >= 0; i--) {
+        Mur mur = AllMurs.get(i);
+        if (mur.DansMur(nextX, nextY)) {
+          // Détruit le mur, même indestructible (sauf bordures = 4 premiers murs)
+          if (i >= 4) {
+            mur.hp = 0;
+            mur.type = "destructible";
+            BoumParticulesCouleur(mur.x, mur.y, 15, 30, 6, mur.couleur);
+            FumeeParticules(mur.x, mur.y, 6);
+          } else {
+            // Bordure : rebondir
+            String cote = CoteRect(x, y, mur.x, mur.y, mur.tailleX, mur.tailleY);
+            ori = ReflexionAngle(ori, cote);
+            EtincellesDir(x, y, 8, ori + PI, PI/3, 4, type.couleur);
+          }
+          break;
         }
-        String cote = CoteRect(x, y, mur.x, mur.y, mur.tailleX, mur.tailleY);
-        ori = ReflexionAngle(ori, cote);
-        rebonds++;
-        // Ricochet : accélère au rebond
-        if (comp.equals("ricochet")) {
-          speed *= 1.15;
-        } else {
-          speed *= 0.85;
+      }
+    }
+    else {
+      for (int i = 0; i < AllMurs.size(); i++) {
+        Mur mur = AllMurs.get(i);
+        if (mur.DansMur(nextX, nextY)) {
+          if (type.placeMur) {
+            PlacerMur(x, y);
+            aSupprimer = true;
+            return;
+          }
+          if (mur.EstDestructible()) {
+            mur.PrendreDegas(1);
+            BoumParticulesCouleur(x, y, 10, 20, 5, mur.couleur);
+            FumeeParticules(x, y, 4);
+            aSupprimer = true;
+            return;
+          }
+          String cote = CoteRect(x, y, mur.x, mur.y, mur.tailleX, mur.tailleY);
+          ori = ReflexionAngle(ori, cote);
+          rebonds++;
+          // Ricochet : accélère au rebond
+          if (comp.equals("ricochet")) {
+            speed *= 1.15;
+          } else {
+            speed *= 0.85;
+          }
+          EtincellesDir(x, y, 8, ori + PI, PI/3, 4, type.couleur);
+          FumeeParticules(x, y, 3);
+          JouerSon("rebond");
+          break;
         }
-        EtincellesDir(x, y, 8, ori + PI, PI/3, 4, type.couleur);
-        FumeeParticules(x, y, 3);
-        break;
       }
     }
 
@@ -152,9 +264,84 @@ class Munition {
           // Ralentissement au lieu de dégâts
           tank.boosts.add(new BoostActif("ralenti", 0.3, 3000));
           BoumParticulesCouleur(x, y, 15, 35, 6, type.couleur);
-        } else {
+        }
+        else if (comp.equals("teleporteur")) {
+          // Téléporte l'ennemi à une position aléatoire
+          float marge = 80;
+          for (int t = 0; t < 30; t++) {
+            float nx = random(marge, LARGEUR - marge);
+            float ny = random(marge, HAUTEUR - marge);
+            boolean valide = true;
+            for (Mur m : AllMurs) {
+              if (m.DansMur(nx, ny)) { valide = false; break; }
+            }
+            if (valide) {
+              BoumParticulesCouleur(tank.x, tank.y, 10, 25, 5, type.couleur);
+              tank.x = nx; tank.y = ny;
+              BoumParticulesCouleur(tank.x, tank.y, 10, 25, 5, type.couleur);
+              FlashPleinEcran(0.2, type.couleur, 200);
+              CreerTexteFlottant(tank.x, tank.y - 20, "TELEPORTE!", "", type.couleur);
+              JouerSon("tank_teleport");
+              break;
+            }
+          }
+        }
+        else if (comp.equals("miroir")) {
+          // Inverse la direction du tank et rebondit
+          tank.dir += PI;
+          tank.boosts.add(new BoostActif("ralenti", 0.5, 1500));
+          BoumParticulesCouleur(x, y, 12, 25, 5, type.couleur);
+          // Rebondir (ne meurt pas)
+          ori = atan2(y - tank.y, x - tank.x);
+          rebonds++;
+          EtincellesDir(x, y, 6, ori, PI/3, 3, type.couleur);
+          FumeeParticules(x, y, 3);
+          if (rebonds > type.rebondsMax) { aSupprimer = true; return; }
+          continue; // ne meurt pas au contact
+        }
+        else if (comp.equals("chaine")) {
+          // Dégâts puis saute à l'ennemi suivant
+          if (type.degats > 0) tank.PrendreDegas(type.degats * multDegats);
+          BoumParticulesCouleur(x, y, 10, 25, 5, type.couleur);
+          // Trouver le prochain ennemi vivant
+          Tank prochaineCible = null;
+          float minDist = 400;
+          for (Tank t2 : AllTanks) {
+            if (t2 == tank || !t2.vivant) continue;
+            float d = dist(x, y, t2.x, t2.y);
+            if (d < minDist) { minDist = d; prochaineCible = t2; }
+          }
+          if (prochaineCible != null) {
+            ori = atan2(prochaineCible.y - y, prochaineCible.x - x);
+            // Éclair visuel entre les deux cibles
+            EtincellesDir(x, y, 4, ori, PI/6, 4, type.couleur);
+            FumeeParticules(x, y, 3);
+            continue; // ne meurt pas, saute
+          } else {
+            aSupprimer = true;
+            return;
+          }
+        }
+        else if (comp.equals("fumigene")) {
+          // Crée une zone de fumée
+          AllZonesFumee.add(new ZoneFumee(x, y, 60, 5000));
+          BoumParticulesCouleur(x, y, 15, 30, 5, type.couleur);
+          FumeeParticules(x, y, 15);
+          aSupprimer = true;
+          return;
+        }
+        else {
           if (type.degats > 0) tank.PrendreDegas(type.degats * multDegats);
           BoumParticulesCouleur(x, y, 15, 30, 6, type.couleur);
+          JouerSon("impact");
+          // Vampirique : soigne le tireur
+          if (type.degats > 0) {
+            Tank tireur = TrouverTank(proprietaireId);
+            if (tireur != null && tireur.vivant && tireur.ABoost("boost_vampirique")) {
+              tireur.hp = min(tireur.hp + 1, tireur.type.hpMax);
+              CreerTexteFlottant(tireur.x, tireur.y - 20, "+1 HP", "Drain", #CC0044);
+            }
+          }
         }
         FumeeParticules(x, y, 5);
         if (type.explose) Exploser();
@@ -163,7 +350,24 @@ class Munition {
           aSupprimer = true;
           return;
         }
-        // Laser perce : continue sans mourir
+        // Laser/plasma perce : continue sans mourir
+      }
+    }
+
+    // === MAGNETIQUE : déviation par les tanks avec boost magnétique ===
+    for (Tank t : AllTanks) {
+      if (!t.vivant || t.joueurId == proprietaireId) continue;
+      if (t.ABoost("boost_magnetique")) {
+        float d = dist(x, y, t.x, t.y);
+        if (d < 100 && d > 5) {
+          // Repousser le projectile
+          float repulse = 0.8 * (100 - d) / 100;
+          float angleRepulse = atan2(y - t.y, x - t.x);
+          float diff = angleRepulse - ori;
+          while (diff > PI) diff -= TWO_PI;
+          while (diff < -PI) diff += TWO_PI;
+          ori += diff * repulse * 0.1;
+        }
       }
     }
 
@@ -224,6 +428,96 @@ class Munition {
       rotate(ori);
       triangle(-type.taille/2, -type.taille/3, -type.taille/2, type.taille/3, type.taille/2, 0);
       popMatrix();
+    } else if (comp.equals("plasma")) {
+      // Plasma : orbe translucide pulsante
+      float pulse = 0.8 + sin(millis() * 0.02) * 0.2;
+      fill(type.couleur, 20);
+      ellipse(x, y, type.taille * 3 * pulse, type.taille * 3 * pulse);
+      fill(type.couleur, 80);
+      ellipse(x, y, type.taille * 1.5, type.taille * 1.5);
+      fill(255, 220);
+      ellipse(x, y, type.taille * 0.5, type.taille * 0.5);
+    } else if (comp.equals("teleporteur")) {
+      // Téléporteur : losange tournant
+      pushMatrix();
+      translate(x, y);
+      rotate(millis() * 0.01);
+      fill(type.couleur, 30);
+      ellipse(0, 0, type.taille * 2.5, type.taille * 2.5);
+      fill(type.couleur);
+      rectMode(CENTER);
+      pushMatrix(); rotate(PI/4);
+      rect(0, 0, type.taille * 0.8, type.taille * 0.8);
+      popMatrix();
+      popMatrix();
+    } else if (comp.equals("aspirante")) {
+      // Aspirante : forme avec ailes
+      fill(type.couleur, 30);
+      ellipse(x, y, type.taille * 2.5, type.taille * 2.5);
+      fill(type.couleur);
+      pushMatrix();
+      translate(x, y); rotate(ori);
+      triangle(type.taille/2, 0, -type.taille/3, -type.taille/3, -type.taille/3, type.taille/3);
+      popMatrix();
+      fill(255, 180);
+      ellipse(x, y, type.taille * 0.3, type.taille * 0.3);
+    } else if (comp.equals("meteore")) {
+      // Météore : gros et menaçant
+      fill(type.couleur, 15);
+      ellipse(x, y, type.taille * 4, type.taille * 4);
+      fill(type.couleur, 40);
+      ellipse(x, y, type.taille * 2.5, type.taille * 2.5);
+      fill(type.couleur);
+      ellipse(x, y, type.taille, type.taille);
+      fill(#FFCC00, 150);
+      ellipse(x, y, type.taille * 0.5, type.taille * 0.5);
+    } else if (comp.equals("chaine")) {
+      // Chaîne : étoile électrique
+      fill(type.couleur, 30);
+      ellipse(x, y, type.taille * 2, type.taille * 2);
+      fill(type.couleur);
+      pushMatrix();
+      translate(x, y); rotate(millis() * 0.015);
+      for (int s = 0; s < 4; s++) {
+        rotate(PI/2);
+        rectMode(CENTER);
+        rect(0, type.taille * 0.3, type.taille * 0.2, type.taille * 0.6);
+      }
+      popMatrix();
+      fill(255, 200);
+      ellipse(x, y, type.taille * 0.35, type.taille * 0.35);
+    } else if (comp.equals("forage")) {
+      // Foreuse : engrenage tournant
+      fill(type.couleur, 25);
+      ellipse(x, y, type.taille * 2.5, type.taille * 2.5);
+      pushMatrix();
+      translate(x, y); rotate(millis() * 0.03);
+      fill(type.couleur);
+      for (int s = 0; s < 6; s++) {
+        rotate(PI/3);
+        rectMode(CENTER);
+        rect(type.taille * 0.35, 0, type.taille * 0.3, type.taille * 0.2);
+      }
+      fill(lerpColor(type.couleur, #000000, 0.3));
+      ellipse(0, 0, type.taille * 0.5, type.taille * 0.5);
+      popMatrix();
+    } else if (comp.equals("miroir")) {
+      // Miroir : sphère réfléchissante
+      fill(type.couleur, 20);
+      ellipse(x, y, type.taille * 2.5, type.taille * 2.5);
+      fill(type.couleur);
+      ellipse(x, y, type.taille, type.taille);
+      // Reflet
+      fill(255, 150);
+      ellipse(x - type.taille * 0.15, y - type.taille * 0.15, type.taille * 0.4, type.taille * 0.3);
+    } else if (comp.equals("fumigene")) {
+      // Fumigène : nuage
+      fill(type.couleur, 30);
+      ellipse(x, y, type.taille * 2, type.taille * 2);
+      fill(type.couleur, 120);
+      ellipse(x, y, type.taille, type.taille);
+      fill(type.couleur, 60);
+      ellipse(x + 3, y - 2, type.taille * 0.7, type.taille * 0.7);
     } else {
       // Standard
       fill(type.couleur, 30);
@@ -322,6 +616,8 @@ class Munition {
     BoumParticulesCouleur(x, y, 15, (int)type.rayonExplosion, 8, #FF6600);
     FumeeParticules(x, y, 10);
     FlashExplosion(x, y, type.rayonExplosion);
+    if (type.rayonExplosion > 80) JouerSon("explosion_grosse");
+    else JouerSon("explosion");
     for (Tank t : AllTanks) {
       if (!t.vivant) continue;
       if (dist(x, y, t.x, t.y) < type.rayonExplosion) {
@@ -374,6 +670,11 @@ void Fonctions_Munitions() {
       // Mur qui expire naturellement
       else if (mun.type.placeMur && !mun.aSupprimer) {
         mun.PlacerMur(mun.x, mun.y);
+      }
+      // Fumigène qui expire = fumée
+      else if (mun.type.comportement.equals("fumigene") && !mun.aSupprimer) {
+        AllZonesFumee.add(new ZoneFumee(mun.x, mun.y, 60, 5000));
+        FumeeParticules(mun.x, mun.y, 15);
       }
       // Disparition normale
       else if (!mun.aSupprimer) {
