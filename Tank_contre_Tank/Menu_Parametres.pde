@@ -3,7 +3,7 @@
 // ============================================
 
 int paramSelection = 0;
-int NB_PARAMS = 4;
+int NB_PARAMS = 5;
 
 void Afficher_MenuParametres() {
   TexteCentre("PARAMETRES", LARGEUR/2, 40, 36, COULEUR_UI_TEXTE);
@@ -37,8 +37,15 @@ void Afficher_MenuParametres() {
     "Temps avant passage automatique a la manche suivante",
     (int)(DELAI_FIN_MANCHE / 1000), 1, 10);
 
+  // === Paramètre 4 : Taille de la map ===
+  AfficherValeur(cx, startY + (hauteurParam + 15) * 4, largeurParam, hauteurParam, 4,
+    "Taille de la map",
+    "Rend les tanks plus petits et lents pour simuler une plus grande map",
+    paramTailleMap, 50, 200);
+  // Unité % affichée via le bloc ci-dessous
+
   // === Preview jour/nuit ===
-  float previewY = startY + (hauteurParam + 15) * 4 + 20;
+  float previewY = startY + (hauteurParam + 15) * 5 + 20;
   float previewW = 200;
   float previewH = 100;
 
@@ -172,6 +179,10 @@ void AfficherValeur(float cx, float y, float w, float h, int index,
   if (index == 3) {
     TexteCentre("sec", valX, y + 18, 11, COULEUR_UI_TEXTE_DIM);
   }
+  // Unité pour la taille map
+  if (index == 4) {
+    TexteCentre("%", valX + 20, y, 16, COULEUR_UI_TEXTE_DIM);
+  }
 
   pop();
 }
@@ -204,6 +215,10 @@ void Clavier_MenuParametres(char k, int kc) {
     if (gauche) DELAI_FIN_MANCHE = max(1000, DELAI_FIN_MANCHE - 1000);
     if (droite) DELAI_FIN_MANCHE = min(10000, DELAI_FIN_MANCHE + 1000);
   }
+  if (paramSelection == 4) {
+    if (gauche) paramTailleMap = max(50, paramTailleMap - 25);
+    if (droite) paramTailleMap = min(200, paramTailleMap + 25);
+  }
 
   // Retour
   if (k == BACKSPACE || k == ESC) {
@@ -234,9 +249,11 @@ void Clic_MenuParametres() {
         if (sourisX < valX) {
           if (i == 2) SCORE_VICTOIRE = max(1, SCORE_VICTOIRE - 1);
           if (i == 3) DELAI_FIN_MANCHE = max(1000, DELAI_FIN_MANCHE - 1000);
+          if (i == 4) paramTailleMap = max(50, paramTailleMap - 25);
         } else {
           if (i == 2) SCORE_VICTOIRE = min(20, SCORE_VICTOIRE + 1);
           if (i == 3) DELAI_FIN_MANCHE = min(10000, DELAI_FIN_MANCHE + 1000);
+          if (i == 4) paramTailleMap = min(200, paramTailleMap + 25);
         }
       }
     }

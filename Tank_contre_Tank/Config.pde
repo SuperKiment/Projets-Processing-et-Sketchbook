@@ -35,6 +35,13 @@ boolean paramJourNuitAleatoire = true;   // alternance jour/nuit aléatoire chaq
 boolean paramCouleursAleatoires = false; // changement de palette entre les manches
 boolean modeJour = false;               // état actuel de la manche (jour = pas d'assombrissement)
 
+// --- Taille de map ---
+int paramTailleMap = 100; // pourcentage (50-200), 100 = normal
+
+float echelleMap() {
+  return 100.0 / paramTailleMap;
+}
+
 // Palettes de couleurs pour variation entre manches
 // { fondNuit, murNuit, fondJour, murJour }
 color[][] PALETTES_COULEURS = {

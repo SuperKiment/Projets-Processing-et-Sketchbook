@@ -57,7 +57,7 @@ class Canon {
 
     TypeMunition typeATirer = (munsSpecialesRestantes > 0) ? typeMunActuel : typeMunDefaut;
 
-    float taille = proprietaire.type.taille;
+    float taille = proprietaire.TailleActuelle();
     float spawnX = proprietaire.x + cos(proprietaire.dir) * (taille/2 + 5);
     float spawnY = proprietaire.y + sin(proprietaire.dir) * (taille/2 + 5);
 
@@ -96,18 +96,19 @@ class Canon {
       EtincellesDir(spawnX, spawnY, 4, proprietaire.dir, PI/6, 3, typeATirer.couleur);
       FumeeParticules(spawnX, spawnY, 2);
       FlashTir(spawnX, spawnY, typeATirer.couleur);
-      // Son selon le type
+      // Son selon le type (pitch random pour variété)
+      float p = random(0.9, 1.1);
       String comp = typeATirer.comportement;
-      if (comp.equals("laser")) JouerSon("tir_laser");
-      else if (typeATirer.nom.equals("shotgun")) JouerSon("tir_shotgun");
-      else if (comp.equals("guidee")) JouerSon("tir_missile");
-      else if (comp.equals("grenade")) JouerSon("tir_grenade");
-      else if (comp.equals("plasma")) JouerSon("tir_plasma");
-      else if (comp.equals("fumigene")) JouerSon("tir_fumigene");
-      else if (typeATirer.explose) JouerSon("tir_explosif");
-      else JouerSon("tir");
+      if (comp.equals("laser")) JouerSon("tir_laser", 1, p);
+      else if (typeATirer.nom.equals("shotgun")) JouerSon("tir_shotgun", 1, p);
+      else if (comp.equals("guidee")) JouerSon("tir_missile", 1, p);
+      else if (comp.equals("grenade")) JouerSon("tir_grenade", 1, random(0.85, 1.0));
+      else if (comp.equals("plasma")) JouerSon("tir_plasma", 1, random(0.95, 1.15));
+      else if (comp.equals("fumigene")) JouerSon("tir_fumigene", 1, random(0.8, 0.95));
+      else if (typeATirer.explose) JouerSon("tir_explosif", 1, random(0.85, 1.05));
+      else JouerSon("tir", 1, p);
     } else {
-      JouerSon("tir_mine");
+      JouerSon("tir_mine", 1, random(0.9, 1.1));
     }
 
     if (munsSpecialesRestantes > 0) {

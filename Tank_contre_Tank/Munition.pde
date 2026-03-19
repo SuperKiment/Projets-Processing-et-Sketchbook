@@ -111,7 +111,7 @@ class Munition {
 
   Munition(float nx, float ny, float nori, TypeMunition t, int propId) {
     x = nx; y = ny; ori = nori;
-    type = t; speed = t.vitesse;
+    type = t; speed = t.vitesse * echelleMap();
     timer = millis(); proprietaireId = propId;
   }
 
@@ -248,7 +248,10 @@ class Munition {
           }
           EtincellesDir(x, y, 8, ori + PI, PI/3, 4, type.couleur);
           FumeeParticules(x, y, 3);
-          JouerSon("rebond");
+          // Pitch selon vitesse et taille : rapide/petit = aigu, lent/gros = grave
+          float pitchVitesse = constrain(speed / 8.0, 0.6, 1.5);
+          float pitchTaille = constrain(map(type.taille, 3, 20, 1.4, 0.7), 0.6, 1.5);
+          JouerSon("rebond", 1, pitchVitesse * pitchTaille);
           break;
         }
       }
@@ -281,7 +284,7 @@ class Munition {
               BoumParticulesCouleur(tank.x, tank.y, 10, 25, 5, type.couleur);
               FlashPleinEcran(0.2, type.couleur, 200);
               CreerTexteFlottant(tank.x, tank.y - 20, "TELEPORTE!", "", type.couleur);
-              JouerSon("tank_teleport");
+              JouerSon("tank_teleport", 1, random(0.8, 1.2));
               break;
             }
           }
@@ -333,7 +336,9 @@ class Munition {
         else {
           if (type.degats > 0) tank.PrendreDegas(type.degats * multDegats);
           BoumParticulesCouleur(x, y, 15, 30, 6, type.couleur);
-          JouerSon("impact");
+          // Pitch selon taille : gros projectile = grave, petit = aigu
+          float pitchImpact = constrain(map(type.taille, 3, 20, 1.3, 0.7), 0.6, 1.4) * random(0.95, 1.05);
+          JouerSon("impact", 1, pitchImpact);
           // Vampirique : soigne le tireur
           if (type.degats > 0) {
             Tank tireur = TrouverTank(proprietaireId);
@@ -616,8 +621,8 @@ class Munition {
     BoumParticulesCouleur(x, y, 15, (int)type.rayonExplosion, 8, #FF6600);
     FumeeParticules(x, y, 10);
     FlashExplosion(x, y, type.rayonExplosion);
-    if (type.rayonExplosion > 80) JouerSon("explosion_grosse");
-    else JouerSon("explosion");
+    if (type.rayonExplosion > 80) JouerSon("explosion_grosse", 1, random(0.7, 0.9));
+    else JouerSon("explosion", 1, random(0.85, 1.15));
     for (Tank t : AllTanks) {
       if (!t.vivant) continue;
       if (dist(x, y, t.x, t.y) < type.rayonExplosion) {
@@ -675,6 +680,10 @@ void Fonctions_Munitions() {
       else if (mun.type.comportement.equals("fumigene") && !mun.aSupprimer) {
         AllZonesFumee.add(new ZoneFumee(mun.x, mun.y, 60, 5000));
         FumeeParticules(mun.x, mun.y, 15);
+      }
+      // Munition explosive qui expire (météore, etc.) = explosion
+      else if (mun.type.explose && !mun.aSupprimer) {
+        mun.Exploser();
       }
       // Disparition normale
       else if (!mun.aSupprimer) {

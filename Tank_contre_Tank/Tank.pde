@@ -46,6 +46,7 @@ class Tank {
       if (b.categorie.equals("boost_vitesse")) s *= b.multiplicateur;
       if (b.categorie.equals("ralenti")) s *= b.multiplicateur;
     }
+    s *= echelleMap();
     return s;
   }
 
@@ -517,7 +518,7 @@ class Tank {
     boolean bouge = input.avancer || input.reculer || input.gauche || input.droite;
     speed = bouge ? lerp(speed, sMax, 0.01) : lerp(speed, 0, 0.05);
 
-    float rotSpeed = type.dirSpeed * input.rotationIntensiteX;
+    float rotSpeed = type.dirSpeed * input.rotationIntensiteX * echelleMap();
     if (input.gauche) dir -= rotSpeed;
     if (input.droite) dir += rotSpeed;
 
@@ -564,6 +565,7 @@ class Tank {
     float t = type.taille;
     if (ABoost("boost_gigantisme")) t *= 1.8;
     if (ABoost("boost_miniature")) t *= 0.5;
+    t *= echelleMap();
     return t;
   }
 
@@ -571,6 +573,7 @@ class Tank {
     float r = type.hitboxRayon;
     if (ABoost("boost_gigantisme")) r *= 1.8;
     if (ABoost("boost_miniature")) r *= 0.5;
+    r *= echelleMap();
     return r;
   }
 
@@ -587,7 +590,9 @@ class Tank {
     float degatsFinal = degats * MultDefense();
     hp -= max(1, (int)degatsFinal);
     BoumParticulesCouleur(x, y, 10, 30, 5, couleur);
-    JouerSon("tank_degats");
+    // Pitch plus grave quand HP bas
+    float hpRatio = constrain((float)hp / type.hpMax, 0, 1);
+    JouerSon("tank_degats", 1, lerp(0.6, 1.1, hpRatio));
     if (hp <= 0) Mourir();
   }
 
@@ -661,7 +666,7 @@ class Tourelle {
         AllMunitions.add(m);
         EtincellesDir(x + cos(dir) * 15, y + sin(dir) * 15, 3, dir, PI/6, 2, couleur);
         FlashTir(x, y, couleur);
-        JouerSon("tir");
+        JouerSon("tir", 0.7, random(1.2, 1.5));
         dernierTir = millis();
       }
     }
