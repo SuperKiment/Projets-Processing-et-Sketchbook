@@ -120,8 +120,11 @@ void Afficher_MenuTanks() {
     TexteCentre("ESPACE ou START pour lancer!", LARGEUR/2, HAUTEUR - 35, 22, COULEUR_UI_ACCENT);
   } else {
     TexteCentre("Chaque joueur choisit son tank", LARGEUR/2, HAUTEUR - 55, 16, COULEUR_UI_TEXTE_DIM);
-    TexteCentre("ECHAP pour revenir", LARGEUR/2, HAUTEUR - 30, 14, COULEUR_UI_TEXTE_DIM);
   }
+
+  // Bouton retour
+  Bouton bRetourTanks = new Bouton("RETOUR", 100, HAUTEUR - 40, 150, 40);
+  bRetourTanks.Affichage();
 
   // Input par joueur
   MettreAJourInputsTanks(nbJoueurs);
@@ -200,7 +203,7 @@ void Clavier_MenuTanks(char k, int kc) {
   }
 
   // Retour
-  if (k == BACKSPACE || k == ESC) {
+  if (k == BACKSPACE || kc == 27) {
     ChangerEtat(Etat.MENU_CARTES);
   }
 }
@@ -248,6 +251,13 @@ void MettreAJourManettesTanks() {
 }
 
 void Clic_MenuTanks() {
+  // Bouton retour
+  Bouton bRetourTanks = new Bouton("RETOUR", 100, HAUTEUR - 40, 150, 40);
+  if (bRetourTanks.SourisDessus()) {
+    ChangerEtat(Etat.MENU_CARTES);
+    return;
+  }
+
   // Espace via validation menu
   int nbJoueurs = max(2, CompterJoueursActifs());
   boolean tousPrets = true;

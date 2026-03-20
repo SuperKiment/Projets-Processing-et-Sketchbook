@@ -59,7 +59,8 @@ void Afficher_MenuCommandes() {
   }
 
   // === RETOUR ===
-  TexteCentre("ECHAP / BACKSPACE pour revenir", LARGEUR/2, HAUTEUR - 40, 16, COULEUR_UI_TEXTE_DIM);
+  Bouton bRetourCmd = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
+  bRetourCmd.Affichage();
 }
 
 void AfficherLigneCommande(float cx, float y, String action, String touche) {
@@ -84,7 +85,14 @@ void AfficherLigneCommande(float cx, float y, String action, String touche) {
 }
 
 void Clavier_MenuCommandes(char k, int kc) {
-  if (k == BACKSPACE || k == ESC || k == ' ' || k == ENTER) {
+  if (k == BACKSPACE || kc == 27) {
+    ChangerEtat(Etat.MENU_PRINCIPAL);
+  }
+}
+
+void Clic_MenuCommandes() {
+  Bouton bRetourCmd = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
+  if (bRetourCmd.SourisDessus()) {
     ChangerEtat(Etat.MENU_PRINCIPAL);
   }
 }

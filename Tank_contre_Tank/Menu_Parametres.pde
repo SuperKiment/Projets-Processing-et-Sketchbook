@@ -103,7 +103,8 @@ void Afficher_MenuParametres() {
   TexteCentre("JOUR", cx + previewW/2 + 20, previewY + previewH + 18, 14, COULEUR_UI_TEXTE_DIM);
 
   // === Retour ===
-  TexteCentre("ECHAP / BACKSPACE pour revenir", LARGEUR/2, HAUTEUR - 40, 16, COULEUR_UI_TEXTE_DIM);
+  Bouton bRetourParam = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
+  bRetourParam.Affichage();
 }
 
 void AfficherToggle(float cx, float y, float w, float h, int index,
@@ -221,7 +222,7 @@ void Clavier_MenuParametres(char k, int kc) {
   }
 
   // Retour
-  if (k == BACKSPACE || k == ESC) {
+  if (k == BACKSPACE || kc == 27) {
     ChangerEtat(Etat.MENU_PRINCIPAL);
   }
 }
@@ -257,5 +258,11 @@ void Clic_MenuParametres() {
         }
       }
     }
+  }
+
+  // Bouton retour
+  Bouton bRetourParam = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
+  if (bRetourParam.SourisDessus()) {
+    ChangerEtat(Etat.MENU_PRINCIPAL);
   }
 }

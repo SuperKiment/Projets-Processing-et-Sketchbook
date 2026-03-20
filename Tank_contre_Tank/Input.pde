@@ -95,6 +95,9 @@ void mousePressed() {
     case MENU_TANKS:
       Clic_MenuTanks();
       break;
+    case MENU_COMMANDES:
+      Clic_MenuCommandes();
+      break;
     case MENU_PARAMETRES:
       Clic_MenuParametres();
       break;

@@ -195,7 +195,7 @@ void Clavier_MenuCartes(char k, int kc) {
     carteSelectionnee = ToutesLesCartes.get(carteIndex);
     ChangerEtat(Etat.MENU_TANKS);
   }
-  if (k == BACKSPACE || k == ESC) {
+  if (k == BACKSPACE || kc == 27) {
     ChangerEtat(Etat.MENU_PRINCIPAL);
   }
 }

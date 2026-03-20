@@ -59,40 +59,21 @@ void Afficher_MenuManettes() {
     ellipse(sx + slotLarg/2 - 30, sy, 16, 16);
     pop();
 
-    // Bouton retirer manette
+    // Bouton retirer manette (affichage seulement, clic dans Clic_MenuManettes)
     if (actif && inputManager.joueurs[i].utiliseManette) {
       Bouton bRetirer = new Bouton("X", sx + slotLarg/2 - 70, sy, 30, 30);
       bRetirer.texteTaille = 14;
       bRetirer.Affichage();
-      if (bRetirer.SourisDessus() && mousePressed) {
-        inputManager.joueurs[i].RetirerManette();
-      }
     }
-    // Bouton retirer/réassigner clavier
+    // Bouton retirer/réassigner clavier (affichage seulement)
     if (inputManager.joueurs[i].clavier != null) {
       Bouton bRetirerClav = new Bouton("- Clavier", sx + slotLarg/2 - 150, sy, 90, 28);
       bRetirerClav.texteTaille = 12;
       bRetirerClav.Affichage();
-      if (bRetirerClav.SourisDessus() && mousePressed) {
-        inputManager.joueurs[i].RetirerClavier();
-      }
     } else if (!inputManager.joueurs[i].utiliseManette && (i == 0 || i == 1)) {
       Bouton bAjouterClav = new Bouton("+ Clavier", sx + slotLarg/2 - 150, sy, 90, 28);
       bAjouterClav.texteTaille = 12;
       bAjouterClav.Affichage();
-      if (bAjouterClav.SourisDessus() && mousePressed) {
-        if (i == 0) {
-          inputManager.joueurs[0].AssignerClavier(
-            new ToucheClavier('z'), new ToucheClavier('s'),
-            new ToucheClavier('q'), new ToucheClavier('d'),
-            new ToucheClavier('c'), new ToucheClavier('v'));
-        } else {
-          inputManager.joueurs[1].AssignerClavier(
-            new ToucheClavier(UP), new ToucheClavier(DOWN),
-            new ToucheClavier(LEFT), new ToucheClavier(RIGHT),
-            new ToucheClavier(ENTER), new ToucheClavier(SHIFT));
-        }
-      }
     }
   }
 
@@ -162,10 +143,56 @@ void Clic_MenuManettes() {
   if (bRetour.SourisDessus()) {
     ChangerEtat(Etat.MENU_PRINCIPAL);
   }
+
+  // Clics sur les boutons inline des slots joueurs
+  float slotLarg = 700;
+  float slotHaut = 80;
+  float debutY = 100;
+  float sx = LARGEUR/2;
+
+  for (int i = 0; i < MAX_JOUEURS; i++) {
+    float sy = debutY + i * (slotHaut + 15);
+    boolean actif = inputManager.JoueurActif(i);
+
+    // Bouton X (retirer manette)
+    if (actif && inputManager.joueurs[i].utiliseManette) {
+      Bouton bRetirer = new Bouton("X", sx + slotLarg/2 - 70, sy, 30, 30);
+      if (bRetirer.SourisDessus()) {
+        inputManager.joueurs[i].RetirerManette();
+        return;
+      }
+    }
+    // Bouton - Clavier
+    if (inputManager.joueurs[i].clavier != null) {
+      Bouton bRetirerClav = new Bouton("- Clavier", sx + slotLarg/2 - 150, sy, 90, 28);
+      if (bRetirerClav.SourisDessus()) {
+        inputManager.joueurs[i].RetirerClavier();
+        return;
+      }
+    }
+    // Bouton + Clavier
+    else if (!inputManager.joueurs[i].utiliseManette && (i == 0 || i == 1)) {
+      Bouton bAjouterClav = new Bouton("+ Clavier", sx + slotLarg/2 - 150, sy, 90, 28);
+      if (bAjouterClav.SourisDessus()) {
+        if (i == 0) {
+          inputManager.joueurs[0].AssignerClavier(
+            new ToucheClavier('z'), new ToucheClavier('s'),
+            new ToucheClavier('q'), new ToucheClavier('d'),
+            new ToucheClavier('c'), new ToucheClavier('v'));
+        } else {
+          inputManager.joueurs[1].AssignerClavier(
+            new ToucheClavier(UP), new ToucheClavier(DOWN),
+            new ToucheClavier(LEFT), new ToucheClavier(RIGHT),
+            new ToucheClavier(ENTER), new ToucheClavier(SHIFT));
+        }
+        return;
+      }
+    }
+  }
 }
 
 void Clavier_MenuManettes(char k, int kc) {
-  if (k == BACKSPACE || k == ESC) {
+  if (k == BACKSPACE || kc == 27) {
     ChangerEtat(Etat.MENU_PRINCIPAL);
   }
 }
