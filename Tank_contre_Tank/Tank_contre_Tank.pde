@@ -8,6 +8,9 @@ void setup() {
   noStroke();
   rectMode(CENTER);
 
+  policeJeu = createFont("fonts/minecraft.ttf", 32);
+  textFont(policeJeu);
+
   Setup_TypesTanks();
   Setup_TypesMunitions();
   Setup_TypesPickups();
@@ -16,6 +19,7 @@ void setup() {
   Setup_Eclairage();
   Setup_Traces();
   Setup_Sons();
+  Setup_Modes();
   Setup_MenuPrincipal();
 }
 
@@ -29,6 +33,10 @@ void draw() {
     case MENU_PRINCIPAL:
       FondEcran(COULEUR_FOND_MENU);
       Afficher_MenuPrincipal();
+      break;
+    case MENU_MODES:
+      FondEcran(COULEUR_FOND_MENU);
+      Afficher_MenuModes();
       break;
     case MENU_MANETTES:
       FondEcran(COULEUR_FOND_MENU);
@@ -102,11 +110,11 @@ void Fonctions_Partie_Gelee() {
   }
   ParticuleFonctions();
   Fonctions_TextesFlottants();
+  if (partieActuelle != null && partieActuelle.EstModeColline()) {
+    partieActuelle.Dessiner_ZoneColline();
+  }
   Dessiner_Eclairage();
   Appliquer_PostProcess();
   Afficher_HUD();
   Afficher_LabelPostProcess();
 }
-/*
-Bug : quand j'ajoute une manette, puis la retire et la remets, elle passe de J3 à J4, elle devrait se remettre à J3.
-*/

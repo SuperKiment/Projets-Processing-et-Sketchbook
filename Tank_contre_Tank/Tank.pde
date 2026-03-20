@@ -26,6 +26,10 @@ class Tank {
   boolean rageActive = false;      // Berserker
   float rageFin = 0;
 
+  // Respawn
+  float timerMort = 0;            // moment de la mort (millis)
+  boolean attenteRespawn = false;  // true = mort, en attente de respawn
+
   Tank(int jId, TypeTank t, float nx, float ny, float nd, PlayerInput pi) {
     joueurId = jId; type = t;
     x = nx; y = ny; dir = nd; speed = 0;
@@ -238,6 +242,21 @@ class Tank {
 
   // === AFFICHAGE ===
   void Affichage() {
+    // Fantôme de respawn : silhouette transparente pulsante
+    if (!vivant && attenteRespawn) {
+      push();
+      translate(x, y);
+      rotate(dir);
+      float tailleScale = TailleActuelle() / type.taille;
+      scale(tailleScale);
+      noStroke();
+      float ghostAlpha = 30 + sin(millis() * 0.005) * 15;
+      fill(couleur, ghostAlpha);
+      DessinerForme(type.forme, type.taille, ghostAlpha);
+      canon.Affichage();
+      pop();
+      return;
+    }
     if (!vivant) return;
 
     // Radar : cercles autour des ennemis
@@ -598,12 +617,31 @@ class Tank {
 
   void Mourir() {
     vivant = false;
+    timerMort = millis();
+    attenteRespawn = true;
     TraceMort(x, y, type.taille, couleur);
     BoumParticulesCouleur(x, y, 25, 50, 8, couleur);
     FeuParticules(x, y, 15);
     FumeeParticules(x, y, 10);
     FlashMort(x, y);
     JouerSon("tank_mort");
+  }
+
+  void Respawn(float nx, float ny, float nd) {
+    vivant = true;
+    attenteRespawn = false;
+    x = nx; y = ny; dir = nd; speed = 0;
+    hp = type.hpMax;
+    boosts.clear();
+    canon = new Canon(this);
+    dernierSpecial = millis() - type.specialCooldown;
+    surchargeActive = false;
+    radarActif = false;
+    forteresseActive = false;
+    rageActive = false;
+    // Effet visuel de spawn
+    BoumParticulesCouleur(x, y, 15, 30, 6, couleur);
+    FlashPleinEcran(0.15, couleur, 100);
   }
 
   void Fonctions() {

@@ -10,6 +10,7 @@ class Bouton {
   boolean survole = false;
   boolean selectionne = false; // pour navigation manette/clavier
   float texteTaille;
+  float hoverAnim = 0; // animation hover 0→1
 
   Bouton(String t, float nx, float ny, float nl, float nh) {
     texte = t;
@@ -23,25 +24,40 @@ class Bouton {
   void Affichage() {
     survole = SourisDessus();
 
+    // Animation smooth du hover
+    float cible = (survole || selectionne) ? 1.0 : 0.0;
+    hoverAnim = lerp(hoverAnim, cible, 0.2);
+
     push();
     rectMode(CENTER);
 
+    // Scale au hover
+    float sc = 1.0 + hoverAnim * 0.05;
+    translate(x, y);
+    scale(sc);
+
     // Fond
-    if (selectionne || survole) {
-      fill(COULEUR_UI_ACCENT);
-    } else {
-      fill(COULEUR_UI_PANNEAU);
-    }
-    stroke(COULEUR_UI_BORD);
+    color fondCouleur = lerpColor(COULEUR_UI_PANNEAU, COULEUR_UI_ACCENT, hoverAnim);
+    fill(fondCouleur);
+    color bordCouleur = lerpColor(COULEUR_UI_BORD, COULEUR_UI_ACCENT, hoverAnim * 0.6);
+    stroke(bordCouleur);
     strokeWeight(2);
-    rect(x, y, largeur, hauteur, 8);
+    rect(0, 0, largeur, hauteur, 8);
+
+    // Lueur au hover
+    if (hoverAnim > 0.01) {
+      noFill();
+      stroke(COULEUR_UI_ACCENT, (int)(40 * hoverAnim));
+      strokeWeight(4);
+      rect(0, 0, largeur + 4, hauteur + 4, 10);
+    }
 
     // Texte
     fill(COULEUR_UI_TEXTE);
     noStroke();
     textAlign(CENTER, CENTER);
     textSize(texteTaille);
-    text(texte, x, y - 2);
+    text(texte, 0, -2);
 
     pop();
   }

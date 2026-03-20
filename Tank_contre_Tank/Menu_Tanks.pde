@@ -5,6 +5,7 @@
 int[] indexTankParJoueur = new int[4];
 boolean[] joueurPret = new boolean[4];
 boolean[] stickTanksActifParJoueur = new boolean[4];
+Bouton bRetourTanks;
 
 void Setup_MenuTanks() {
   int nbJoueurs = CompterJoueursActifs();
@@ -123,7 +124,7 @@ void Afficher_MenuTanks() {
   }
 
   // Bouton retour
-  Bouton bRetourTanks = new Bouton("RETOUR", 100, HAUTEUR - 40, 150, 40);
+  if (bRetourTanks == null) bRetourTanks = new Bouton("RETOUR", 100, HAUTEUR - 40, 150, 40);
   bRetourTanks.Affichage();
 
   // Input par joueur
@@ -252,7 +253,7 @@ void MettreAJourManettesTanks() {
 
 void Clic_MenuTanks() {
   // Bouton retour
-  Bouton bRetourTanks = new Bouton("RETOUR", 100, HAUTEUR - 40, 150, 40);
+  if (bRetourTanks == null) bRetourTanks = new Bouton("RETOUR", 100, HAUTEUR - 40, 150, 40);
   if (bRetourTanks.SourisDessus()) {
     ChangerEtat(Etat.MENU_CARTES);
     return;

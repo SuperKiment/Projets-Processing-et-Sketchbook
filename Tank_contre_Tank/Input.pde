@@ -24,6 +24,10 @@ void keyPressed() {
       if (key == 's') menuPrincipal.Bas();
       break;
 
+    case MENU_MODES:
+      Clavier_MenuModes(key, keyCode);
+      break;
+
     case MENU_CARTES:
       Clavier_MenuCartes(key, keyCode);
       break;
@@ -86,6 +90,9 @@ void mousePressed() {
     case MENU_PRINCIPAL:
       Clic_MenuPrincipal();
       break;
+    case MENU_MODES:
+      Clic_MenuModes();
+      break;
     case MENU_CARTES:
       Clic_MenuCartes();
       break;
@@ -122,5 +129,8 @@ void mouseReleased() {
 void mouseWheel(MouseEvent event) {
   if (etatActuel == Etat.MENU_CARTES) {
     ScrollCartes(event.getCount());
+  }
+  if (etatActuel == Etat.MENU_MODES) {
+    ScrollModes(event.getCount());
   }
 }

@@ -60,18 +60,36 @@ void Afficher_MenuCartes() {
     // Ne pas dessiner si hors écran
     if (cy + carteHaut/2 < debutY - 10 || cy - carteHaut/2 > HAUTEUR - 100) continue;
 
+    // Hover détection
+    boolean hover = sourisX > cx - carteLarg/2 && sourisX < cx + carteLarg/2 &&
+                    sourisY > cy - carteHaut/2 && sourisY < cy + carteHaut/2;
+    if (hover) carteIndex = i;
+    boolean actif = (i == carteIndex);
+
     // Cadre de la carte
     push();
     rectMode(CENTER);
-    if (i == carteIndex) {
+    float sc = actif ? 1.04 : 1.0;
+    translate(cx, cy);
+    scale(sc);
+
+    if (actif) {
       stroke(COULEUR_UI_ACCENT);
       strokeWeight(3);
     } else {
       stroke(COULEUR_UI_BORD);
       strokeWeight(1);
     }
-    fill(COULEUR_UI_PANNEAU);
-    rect(cx, cy, carteLarg, carteHaut, 8);
+    fill(actif ? lerpColor(COULEUR_UI_PANNEAU, COULEUR_UI_ACCENT, 0.06) : COULEUR_UI_PANNEAU);
+    rect(0, 0, carteLarg, carteHaut, 8);
+
+    // Lueur
+    if (actif) {
+      noFill();
+      stroke(COULEUR_UI_ACCENT, 30);
+      strokeWeight(4);
+      rect(0, 0, carteLarg + 4, carteHaut + 4, 10);
+    }
     pop();
 
     // Miniature
@@ -80,18 +98,10 @@ void Afficher_MenuCartes() {
     carte.AfficherMiniature(cx - miniLarg/2, cy - carteHaut/2 + 10, miniLarg, miniHaut);
 
     // Nom
-    TexteCentre(carte.nom, cx, cy + carteHaut/2 - 25, 14, COULEUR_UI_TEXTE);
+    TexteCentre(carte.nom, cx, cy + carteHaut/2 - 25, 14, actif ? COULEUR_UI_TEXTE : COULEUR_UI_TEXTE_DIM);
 
     // Max joueurs
     TexteCentre(carte.maxJoueurs + "J", cx, cy + carteHaut/2 - 10, 11, COULEUR_UI_TEXTE_DIM);
-
-    // Détection clic sur la carte
-    if (sourisX > cx - carteLarg/2 && sourisX < cx + carteLarg/2 &&
-        sourisY > cy - carteHaut/2 && sourisY < cy + carteHaut/2) {
-      if (mousePressed && mouseButton == LEFT) {
-        carteIndex = i;
-      }
-    }
   }
   pop();
 

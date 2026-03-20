@@ -56,7 +56,7 @@ void Clic_MenuPrincipal() {
   for (int i = 0; i < menuPrincipal.elements.size(); i++) {
     Bouton b = menuPrincipal.elements.get(i);
     if (b.SourisDessus() || (b.selectionne && menuValiderPresse)) {
-      if (i == 0) ChangerEtat(Etat.MENU_CARTES);
+      if (i == 0) ChangerEtat(Etat.MENU_MODES);
       if (i == 1) ChangerEtat(Etat.MENU_MANETTES);
       if (i == 2) ChangerEtat(Etat.MENU_COMMANDES);
       if (i == 3) ChangerEtat(Etat.MENU_PARAMETRES);
@@ -71,6 +71,9 @@ void Valider_MenuActuel() {
   switch(etatActuel) {
     case MENU_PRINCIPAL:
       Clic_MenuPrincipal();
+      break;
+    case MENU_MODES:
+      Clic_MenuModes();
       break;
     case MENU_CARTES:
       Clic_MenuCartes();

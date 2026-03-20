@@ -8,13 +8,15 @@ void Afficher_HUD() {
   push();
   rectMode(CORNER);
 
-  // Barre du haut avec les joueurs
-  float barreHaut = 40;
+  // Barre du haut avec les joueurs (2 rangées)
+  float barreHaut = 52;
   fill(0, 0, 0, 150);
   noStroke();
   rect(0, 0, LARGEUR, barreHaut);
 
   float segmentLarg = LARGEUR / partieActuelle.nbJoueurs;
+  float ligne1 = 16;  // Rangée 1 : nom joueur, nom tank, score
+  float ligne2 = 38;  // Rangée 2 : HP, ammo, boosts, spécial
 
   for (int i = 0; i < partieActuelle.nbJoueurs; i++) {
     float sx = i * segmentLarg;
@@ -23,30 +25,50 @@ void Afficher_HUD() {
     // Bande couleur joueur
     fill(COULEURS_JOUEURS[i]);
     noStroke();
-    rect(sx, 0, segmentLarg, 4);
+    rect(sx, 0, segmentLarg, 5);
 
-    // Nom joueur + tank
+    // Séparateur vertical entre joueurs
+    if (i > 0) {
+      stroke(255, 30);
+      strokeWeight(1);
+      line(sx, 5, sx, barreHaut);
+      noStroke();
+    }
+
+    // --- Rangée 1 : Nom joueur + tank + score ---
     String tankNom = (tank != null) ? tank.type.nom : "";
-    TexteGauche("J" + (i+1), sx + 10, 13, 14, COULEURS_JOUEURS[i]);
-    TexteGauche(tankNom, sx + 10, 28, 10, COULEUR_UI_TEXTE_DIM);
+    TexteGauche("J" + (i+1), sx + 10, ligne1, 15, COULEURS_JOUEURS[i]);
+    TexteGauche(tankNom, sx + 42, ligne1, 11, COULEUR_UI_TEXTE_DIM);
 
-    // HP
+    // Score (aligné à droite, rangée 1)
+    fill(COULEUR_UI_TEXTE);
+    textAlign(RIGHT, CENTER);
+    textSize(18);
+    if (partieActuelle.EstModeColline()) {
+      int pct = (int)(partieActuelle.scoreColline[i] / partieActuelle.scoreCollineMax * 100);
+      text(partieActuelle.scores[i] + "/" + SCORE_VICTOIRE + "  " + pct + "%", sx + segmentLarg - 10, ligne1);
+    } else {
+      text(partieActuelle.scores[i] + "/" + SCORE_VICTOIRE, sx + segmentLarg - 10, ligne1);
+    }
+
+    // --- Rangée 2 : HP, ammo, boosts, spécial ---
     if (tank != null && tank.vivant) {
-      float hpX = sx + 40;
+      float hpX = sx + 10;
       for (int h = 0; h < tank.type.hpMax; h++) {
         fill(h < tank.hp ? COULEURS_JOUEURS[i] : #333333);
         noStroke();
-        rect(hpX + h * 16, 12, 12, 12, 2);
+        rect(hpX + h * 16, ligne2 - 6, 12, 12, 2);
       }
       // Munition actuelle
+      float afterHP = hpX + tank.type.hpMax * 16 + 6;
       if (tank.canon.munsSpecialesRestantes > 0) {
         fill(tank.canon.typeMunActuel.couleur);
         noStroke();
-        ellipse(hpX + tank.type.hpMax * 16 + 10, 18, 8, 8);
-        TexteGauche("" + tank.canon.munsSpecialesRestantes, hpX + tank.type.hpMax * 16 + 18, 20, 11, tank.canon.typeMunActuel.couleur);
+        ellipse(afterHP + 4, ligne2, 8, 8);
+        TexteGauche("" + tank.canon.munsSpecialesRestantes, afterHP + 12, ligne2, 11, tank.canon.typeMunActuel.couleur);
+        afterHP += 30;
       }
       // Boosts actifs
-      float boostX = sx + 40 + tank.type.hpMax * 16 + (tank.canon.munsSpecialesRestantes > 0 ? 50 : 10);
       for (int b = 0; b < tank.boosts.size(); b++) {
         BoostActif boost = tank.boosts.get(b);
         float vie = (boost.fin - millis()) / 1000.0;
@@ -54,38 +76,36 @@ void Afficher_HUD() {
           color bc = BoostCouleur(boost.categorie);
           fill(bc);
           noStroke();
-          ellipse(boostX + b * 14, 18, 8, 8);
+          ellipse(afterHP + b * 14, ligne2, 8, 8);
           // Barre de durée restante
           fill(bc, 80);
-          rect(boostX + b * 14 - 4, 26, 8 * min(1, vie / 5.0), 2);
+          rect(afterHP + b * 14 - 4, ligne2 + 6, 8 * min(1, vie / 5.0), 2);
         }
       }
-      // Spécial cooldown
+      // Spécial cooldown (aligné à droite, rangée 2)
       float cd = tank.CooldownSpecial();
-      float cdX = sx + segmentLarg - 80;
+      float cdW = 50;
+      float cdX = sx + segmentLarg - cdW - 10;
       fill(cd >= 1.0 ? COULEUR_UI_ACCENT : #444444);
       noStroke();
       rectMode(CORNER);
-      rect(cdX, 10, 40, 16, 3);
+      rect(cdX, ligne2 - 8, cdW, 16, 3);
       fill(COULEUR_UI_ACCENT, 180);
-      rect(cdX, 10, 40 * cd, 16, 3);
+      rect(cdX, ligne2 - 8, cdW * cd, 16, 3);
       fill(COULEUR_UI_TEXTE);
       textAlign(CENTER, CENTER);
-      textSize(9);
-      text(tank.type.specialNom, cdX + 20, 17);
+      textSize(10);
+      text(tank.type.specialNom, cdX + cdW/2, ligne2 - 1);
     } else {
-      TexteGauche("K.O.", sx + 40, 20, 14, #EF5350);
+      TexteGauche("K.O.", sx + 10, ligne2, 14, #EF5350);
     }
-
-    // Score
-    fill(COULEUR_UI_TEXTE);
-    textAlign(RIGHT, CENTER);
-    textSize(18);
-    text(partieActuelle.scores[i] + "/" + SCORE_VICTOIRE, sx + segmentLarg - 10, 20);
   }
 
-  // Numéro de manche + indicateur jour/nuit
+  // Numéro de manche + mode + indicateur jour/nuit
   String mancheLabel = "Manche " + partieActuelle.manche;
+  if (modeActuel != null && !modeActuel.nom.equals("Deathmatch")) {
+    mancheLabel += "  -  " + modeActuel.nom;
+  }
   if (paramJourNuitAleatoire) {
     mancheLabel += modeJour ? "  [Jour]" : "  [Nuit]";
   }

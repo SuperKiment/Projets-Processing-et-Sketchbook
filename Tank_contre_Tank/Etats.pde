@@ -4,6 +4,7 @@
 
 enum Etat {
   MENU_PRINCIPAL,
+  MENU_MODES,
   MENU_MANETTES,
   MENU_CARTES,
   MENU_TANKS,
@@ -27,6 +28,9 @@ void ChangerEtat(Etat nouvel) {
 void SurEntreeEtat(Etat e) {
   switch(e) {
     case MENU_PRINCIPAL:
+      cursor();
+      break;
+    case MENU_MODES:
       cursor();
       break;
     case MENU_CARTES:

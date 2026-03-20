@@ -3,7 +3,8 @@
 // ============================================
 
 int paramSelection = 0;
-int NB_PARAMS = 5;
+int NB_PARAMS = 6;
+Bouton bRetourParam;
 
 void Afficher_MenuParametres() {
   TexteCentre("PARAMETRES", LARGEUR/2, 40, 36, COULEUR_UI_TEXTE);
@@ -42,10 +43,15 @@ void Afficher_MenuParametres() {
     "Taille de la map",
     "Rend les tanks plus petits et lents pour simuler une plus grande map",
     paramTailleMap, 50, 200);
-  // Unité % affichée via le bloc ci-dessous
+
+  // === Paramètre 5 : Zone mobile (colline) ===
+  AfficherToggle(cx, startY + (hauteurParam + 15) * 5, largeurParam, hauteurParam, 5,
+    "Zone mobile (Roi de la colline)",
+    "La zone de capture se deplace periodiquement sur la carte",
+    paramZoneMobile);
 
   // === Preview jour/nuit ===
-  float previewY = startY + (hauteurParam + 15) * 5 + 20;
+  float previewY = startY + (hauteurParam + 15) * 6 + 20;
   float previewW = 200;
   float previewH = 100;
 
@@ -103,7 +109,7 @@ void Afficher_MenuParametres() {
   TexteCentre("JOUR", cx + previewW/2 + 20, previewY + previewH + 18, 14, COULEUR_UI_TEXTE_DIM);
 
   // === Retour ===
-  Bouton bRetourParam = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
+  if (bRetourParam == null) bRetourParam = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
   bRetourParam.Affichage();
 }
 
@@ -112,39 +118,57 @@ void AfficherToggle(float cx, float y, float w, float h, int index,
   push();
   rectMode(CENTER);
 
-  // Cadre
   boolean sel = (index == paramSelection);
-  if (sel) {
+  boolean hover = sourisX > cx - w/2 && sourisX < cx + w/2 &&
+                  sourisY > y - h/2 && sourisY < y + h/2;
+  if (hover) paramSelection = index;
+  boolean actif = sel || hover;
+
+  // Scale au hover
+  float sc = actif ? 1.02 : 1.0;
+  translate(cx, y);
+  scale(sc);
+
+  // Cadre
+  if (actif) {
     stroke(COULEUR_UI_ACCENT);
     strokeWeight(2);
   } else {
     stroke(COULEUR_UI_BORD);
     strokeWeight(1);
   }
-  fill(COULEUR_UI_PANNEAU);
-  rect(cx, y, w, h, 8);
+  fill(actif ? lerpColor(COULEUR_UI_PANNEAU, COULEUR_UI_ACCENT, 0.08) : COULEUR_UI_PANNEAU);
+  rect(0, 0, w, h, 8);
+
+  // Lueur
+  if (actif) {
+    noFill();
+    stroke(COULEUR_UI_ACCENT, 30);
+    strokeWeight(4);
+    rect(0, 0, w + 4, h + 4, 10);
+  }
 
   // Nom
-  TexteGauche(nom, cx - w/2 + 20, y - 12, 18, sel ? COULEUR_UI_TEXTE : COULEUR_UI_TEXTE_DIM);
+  TexteGauche(nom, -w/2 + 20, -12, 18, actif ? COULEUR_UI_TEXTE : COULEUR_UI_TEXTE_DIM);
   // Description
-  TexteGauche(desc, cx - w/2 + 20, y + 14, 12, COULEUR_UI_TEXTE_DIM);
+  TexteGauche(desc, -w/2 + 20, 14, 12, COULEUR_UI_TEXTE_DIM);
 
   // Toggle visuel
-  float toggleX = cx + w/2 - 60;
+  float toggleX = w/2 - 60;
   float toggleW = 50;
   float toggleH = 24;
   noStroke();
   fill(valeur ? #66BB6A : #555555);
-  rect(toggleX, y, toggleW, toggleH, 12);
+  rect(toggleX, 0, toggleW, toggleH, 12);
   // Pastille
   fill(255);
   float pastilleX = valeur ? toggleX + 13 : toggleX - 13;
-  ellipse(pastilleX, y, 18, 18);
+  ellipse(pastilleX, 0, 18, 18);
 
   // Texte statut
   String statut = valeur ? "OUI" : "NON";
   color cStatut = valeur ? #66BB6A : #EF5350;
-  TexteCentre(statut, toggleX, y + toggleH/2 + 10, 11, cStatut);
+  TexteCentre(statut, toggleX, toggleH/2 + 10, 11, cStatut);
 
   pop();
 }
@@ -155,34 +179,52 @@ void AfficherValeur(float cx, float y, float w, float h, int index,
   rectMode(CENTER);
 
   boolean sel = (index == paramSelection);
-  if (sel) {
+  boolean hover = sourisX > cx - w/2 && sourisX < cx + w/2 &&
+                  sourisY > y - h/2 && sourisY < y + h/2;
+  if (hover) paramSelection = index;
+  boolean actif = sel || hover;
+
+  // Scale au hover
+  float sc = actif ? 1.02 : 1.0;
+  translate(cx, y);
+  scale(sc);
+
+  if (actif) {
     stroke(COULEUR_UI_ACCENT);
     strokeWeight(2);
   } else {
     stroke(COULEUR_UI_BORD);
     strokeWeight(1);
   }
-  fill(COULEUR_UI_PANNEAU);
-  rect(cx, y, w, h, 8);
+  fill(actif ? lerpColor(COULEUR_UI_PANNEAU, COULEUR_UI_ACCENT, 0.08) : COULEUR_UI_PANNEAU);
+  rect(0, 0, w, h, 8);
+
+  // Lueur
+  if (actif) {
+    noFill();
+    stroke(COULEUR_UI_ACCENT, 30);
+    strokeWeight(4);
+    rect(0, 0, w + 4, h + 4, 10);
+  }
 
   // Nom
-  TexteGauche(nom, cx - w/2 + 20, y - 12, 18, sel ? COULEUR_UI_TEXTE : COULEUR_UI_TEXTE_DIM);
+  TexteGauche(nom, -w/2 + 20, -12, 18, actif ? COULEUR_UI_TEXTE : COULEUR_UI_TEXTE_DIM);
   // Description
-  TexteGauche(desc, cx - w/2 + 20, y + 14, 12, COULEUR_UI_TEXTE_DIM);
+  TexteGauche(desc, -w/2 + 20, 14, 12, COULEUR_UI_TEXTE_DIM);
 
   // Flèches et valeur
-  float valX = cx + w/2 - 60;
-  TexteCentre("<", valX - 30, y, 22, sel ? COULEUR_UI_TEXTE : COULEUR_UI_TEXTE_DIM);
-  TexteCentre("" + valeur, valX, y, 22, COULEUR_UI_ACCENT);
-  TexteCentre(">", valX + 30, y, 22, sel ? COULEUR_UI_TEXTE : COULEUR_UI_TEXTE_DIM);
+  float valX = w/2 - 60;
+  TexteCentre("<", valX - 30, 0, 22, actif ? COULEUR_UI_TEXTE : COULEUR_UI_TEXTE_DIM);
+  TexteCentre("" + valeur, valX, 0, 22, COULEUR_UI_ACCENT);
+  TexteCentre(">", valX + 30, 0, 22, actif ? COULEUR_UI_TEXTE : COULEUR_UI_TEXTE_DIM);
 
   // Unité pour le délai
   if (index == 3) {
-    TexteCentre("sec", valX, y + 18, 11, COULEUR_UI_TEXTE_DIM);
+    TexteCentre("sec", valX, 18, 11, COULEUR_UI_TEXTE_DIM);
   }
   // Unité pour la taille map
   if (index == 4) {
-    TexteCentre("%", valX + 20, y, 16, COULEUR_UI_TEXTE_DIM);
+    TexteCentre("%", valX + 20, 0, 16, COULEUR_UI_TEXTE_DIM);
   }
 
   pop();
@@ -220,6 +262,9 @@ void Clavier_MenuParametres(char k, int kc) {
     if (gauche) paramTailleMap = max(50, paramTailleMap - 25);
     if (droite) paramTailleMap = min(200, paramTailleMap + 25);
   }
+  if (paramSelection == 5 && (valider || gauche || droite)) {
+    paramZoneMobile = !paramZoneMobile;
+  }
 
   // Retour
   if (k == BACKSPACE || kc == 27) {
@@ -241,10 +286,11 @@ void Clic_MenuParametres() {
 
       // Zone de toggle/valeur (partie droite)
       float valX = cx + largeurParam/2 - 60;
-      if (i == 0 || i == 1) {
+      if (i == 0 || i == 1 || i == 5) {
         // Toggle
         if (i == 0) paramJourNuitAleatoire = !paramJourNuitAleatoire;
         if (i == 1) paramCouleursAleatoires = !paramCouleursAleatoires;
+        if (i == 5) paramZoneMobile = !paramZoneMobile;
       } else {
         // Valeur : clic gauche/droite
         if (sourisX < valX) {
@@ -261,7 +307,7 @@ void Clic_MenuParametres() {
   }
 
   // Bouton retour
-  Bouton bRetourParam = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
+  if (bRetourParam == null) bRetourParam = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
   if (bRetourParam.SourisDessus()) {
     ChangerEtat(Etat.MENU_PRINCIPAL);
   }

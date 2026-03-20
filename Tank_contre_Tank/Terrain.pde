@@ -134,6 +134,22 @@ class Terrain {
         mun.speed *= 1.5;
       }
     }
+    else if (type.equals("portail")) {
+      if (d < rayon * 0.4 && millis() - timer > 300) {
+        int idx = (int)portalLien;
+        if (idx >= 0 && idx < AllTerrains.size()) {
+          Terrain dest = AllTerrains.get(idx);
+          if (dest.type.equals("portail")) {
+            EtincellesDir(mun.x, mun.y, 4, mun.ori, PI/3, 3, #FF44FF);
+            mun.x = dest.x;
+            mun.y = dest.y;
+            EtincellesDir(mun.x, mun.y, 4, mun.ori, PI/3, 3, #FF44FF);
+            timer = millis();
+            dest.timer = millis();
+          }
+        }
+      }
+    }
   }
 
   void Afficher() {

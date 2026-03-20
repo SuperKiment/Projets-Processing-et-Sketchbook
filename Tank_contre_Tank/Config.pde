@@ -8,6 +8,9 @@ final int HAUTEUR = 720;
 
 // --- Debug ---
 boolean DEBUG_MODE = false;
+
+// --- Police ---
+PFont policeJeu;
    
 // --- Couleurs Menu ---
 color COULEUR_FOND_MENU = #0F0F23;
@@ -34,6 +37,9 @@ float DELAI_FIN_MANCHE = 5000; // ms avant prochaine manche
 boolean paramJourNuitAleatoire = true;   // alternance jour/nuit aléatoire chaque manche
 boolean paramCouleursAleatoires = true; // changement de palette entre les manches
 boolean modeJour = false;               // état actuel de la manche (jour = pas d'assombrissement)
+
+// --- Colline ---
+boolean paramZoneMobile = true; // la zone roi de la colline se déplace
 
 // --- Taille de map ---
 int paramTailleMap = 100; // pourcentage (50-200), 100 = normal

@@ -2,6 +2,8 @@
 // Menu_Commandes.pde - Page de commandes
 // ============================================
 
+Bouton bRetourCmd;
+
 void Afficher_MenuCommandes() {
   TexteCentre("COMMANDES", LARGEUR/2, 40, 36, COULEUR_UI_TEXTE);
 
@@ -59,7 +61,7 @@ void Afficher_MenuCommandes() {
   }
 
   // === RETOUR ===
-  Bouton bRetourCmd = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
+  if (bRetourCmd == null) bRetourCmd = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
   bRetourCmd.Affichage();
 }
 
@@ -91,7 +93,7 @@ void Clavier_MenuCommandes(char k, int kc) {
 }
 
 void Clic_MenuCommandes() {
-  Bouton bRetourCmd = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
+  if (bRetourCmd == null) bRetourCmd = new Bouton("RETOUR", LARGEUR/2, HAUTEUR - 50, 250, 45);
   if (bRetourCmd.SourisDessus()) {
     ChangerEtat(Etat.MENU_PRINCIPAL);
   }
