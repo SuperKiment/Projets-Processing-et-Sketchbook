@@ -12,6 +12,8 @@ class Partie {
   int manche = 0;
   int dernierGagnant = -1;
   boolean partieTerminee = false;
+  float timerMortDernier = 0; // moment où le dernier tank adverse meurt
+  boolean mancheEnAttente = false; // true = on attend 1s avant fin de manche
 
   Partie(Carte c, int nj) {
     carte = c;
@@ -130,6 +132,16 @@ class Partie {
     }
 
     if (vivantsCount <= 1 && AllTanks.size() > 1) {
+      // Attendre 1 seconde avant de terminer la manche
+      if (!mancheEnAttente) {
+        mancheEnAttente = true;
+        timerMortDernier = millis();
+        return;
+      }
+      if (millis() - timerMortDernier < 1000) return;
+
+      mancheEnAttente = false;
+
       if (dernierVivant >= 0) {
         scores[dernierVivant]++;
         dernierGagnant = dernierVivant;

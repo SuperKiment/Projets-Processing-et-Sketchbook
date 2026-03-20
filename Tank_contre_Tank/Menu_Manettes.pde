@@ -132,7 +132,7 @@ boolean ManetteEstAssignee(ManetteNative m) {
 }
 
 void AssignerManetteAuProchainSlot(ManetteNative m) {
-  // Chercher le premier slot sans manette (préférer les slots vides)
+  // D'abord un slot complètement vide (pas de clavier, pas de manette)
   for (int i = 0; i < MAX_JOUEURS; i++) {
     PlayerInput pi = inputManager.joueurs[i];
     if (!pi.utiliseManette && pi.clavier == null) {
@@ -140,7 +140,7 @@ void AssignerManetteAuProchainSlot(ManetteNative m) {
       return;
     }
   }
-  // Si tous les slots ont un clavier, assigner au premier slot sans manette
+  // Sinon, premier slot sans manette (même avec clavier)
   for (int i = 0; i < MAX_JOUEURS; i++) {
     PlayerInput pi = inputManager.joueurs[i];
     if (!pi.utiliseManette) {

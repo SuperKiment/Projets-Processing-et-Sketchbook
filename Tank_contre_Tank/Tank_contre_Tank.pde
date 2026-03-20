@@ -107,3 +107,6 @@ void Fonctions_Partie_Gelee() {
   Afficher_HUD();
   Afficher_LabelPostProcess();
 }
+/*
+Bug : quand j'ajoute une manette, puis la retire et la remets, elle passe de J3 à J4, elle devrait se remettre à J3.
+*/

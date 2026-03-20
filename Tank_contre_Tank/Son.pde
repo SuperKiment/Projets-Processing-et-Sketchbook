@@ -57,6 +57,7 @@ void Setup_Sons() {
       "menu_valider",
       "menu_retour",
       "manche_debut",
+      "manche_debut_alt",
       "manche_fin",
       "victoire",
     };

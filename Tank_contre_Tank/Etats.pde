@@ -48,7 +48,11 @@ void SurEntreeEtat(Etat e) {
       if (etatPrecedent != Etat.PAUSE && etatPrecedent != Etat.FIN_MANCHE) {
         LancerPartie();
       }
-      JouerSon("manche_debut");
+      if (random(0, 10) < 9) {
+        JouerSon("manche_debut");
+      } else {
+        JouerSon("manche_debut_alt");
+      }
       noCursor();
       break;
     case PAUSE:

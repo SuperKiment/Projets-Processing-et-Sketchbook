@@ -108,6 +108,8 @@ class Munition {
   boolean boomerangReverse = false;
   // Mine state
   boolean mineActive = false;
+  // Tanks déjà touchés (pour munitions perçantes comme plasma/laser)
+  ArrayList<Integer> tanksTouches = new ArrayList<Integer>();
 
   Munition(float nx, float ny, float nori, TypeMunition t, int propId) {
     x = nx; y = ny; ori = nori;
@@ -262,7 +264,10 @@ class Munition {
       Tank tank = AllTanks.get(i);
       if (tank.joueurId == proprietaireId && millis() - timer < 200) continue;
       if (!tank.vivant) continue;
+      // Skip tanks déjà touchés par cette munition perçante
+      if (type.perce && tanksTouches.contains(tank.joueurId)) continue;
       if (tank.DansTank(x, y)) {
+        if (type.perce) tanksTouches.add(tank.joueurId);
         if (comp.equals("emp")) {
           // Ralentissement au lieu de dégâts
           tank.boosts.add(new BoostActif("ralenti", 0.3, 3000));
